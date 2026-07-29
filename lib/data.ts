@@ -1,0 +1,236 @@
+/**
+ * Seed content + types. Single source of truth for the mock store.
+ * Mirrors the Neon schema in PRD.md §6 (kept flat for the client store).
+ * ponytail: in-memory/localStorage stand-in for Neon+Blob.
+ * add real DB when DATABASE_URL/BLOB_RW_TOKEN exist (see PRD §6-7).
+ */
+
+export const TAGS = [
+  "Web App",
+  "3D / Motion",
+  "UI Kit",
+  "Backend",
+  "Open source",
+] as const;
+export type Tag = (typeof TAGS)[number];
+
+export type Project = {
+  id: string;
+  sortIndex: number;
+  slug: string;
+  name: string;
+  tag: Tag;
+  description: string;
+  stack: string;
+  metric: string;
+  year: string;
+  published: boolean;
+  coverUrl: string | null;
+  media: { id: string; url: string; caption: string }[];
+  updatedAt: string;
+};
+
+export type Post = {
+  id: string;
+  slug: string;
+  title: string;
+  dek: string;
+  topic: string;
+  readMinutes: number;
+  publishedAt: string; // ISO date
+  published: boolean;
+};
+
+export type CvVersion = {
+  id: string;
+  version: number;
+  name: string;
+  sizeBytes: number;
+  isLive: boolean;
+  uploadedAt: string;
+};
+
+export type Profile = {
+  name: string;
+  role: string;
+  location: string;
+  bio: string;
+  email: string;
+  github: string;
+  linkedin: string;
+  heroUrl: string | null;
+  photoUrl: string | null;
+  available: boolean;
+  cvVisible: boolean;
+};
+
+export type MediaItem = { id: string; url: string; caption: string };
+
+export type Store = {
+  projects: Project[];
+  posts: Post[];
+  cvVersions: CvVersion[];
+  profile: Profile;
+  media: MediaItem[];
+};
+
+// --- helpers ---------------------------------------------------------------
+export function slugify(s: string): string {
+  return (
+    s
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "untitled"
+  );
+}
+export function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+// --- static (non-editable) content ----------------------------------------
+export const timeline = [
+  {
+    year: "2026 —",
+    role: "Full-stack Developer",
+    org: "Independent",
+    note: "Product-grade web apps, self-hosted CMS, 3D case studies.",
+  },
+  {
+    year: "2024",
+    role: "Frontend Engineer",
+    org: "Kanvas Studio",
+    note: "Design-system work, shipped a configurator on R3F.",
+  },
+  {
+    year: "2023",
+    role: "Junior Developer",
+    org: "Loop Labs",
+    note: "Internal tools on Next.js + Postgres, first CI pipelines.",
+  },
+  {
+    year: "2022",
+    role: "Started building for the web",
+    org: "Self-taught",
+    note: "HTML/CSS/JS, then React. Never stopped.",
+  },
+];
+
+export const skills = [
+  { name: "TypeScript", level: 0.92, note: "strict, end-to-end" },
+  { name: "React / Next.js", level: 0.9, note: "App Router, RSC, ISR" },
+  { name: "Node / Postgres", level: 0.78, note: "schema + query design" },
+  { name: "Tailwind / CSS", level: 0.85, note: "design systems" },
+  { name: "Three.js / GSAP", level: 0.6, note: "scroll scenes" },
+];
+
+export const talks = [
+  { year: "2026", title: "Self-hosting a CMS without a CMS", venue: "JS Meetup ID" },
+  { year: "2025", title: "ISR in anger: DB content, no spinners", venue: "Next Conf lightning" },
+];
+
+/** contribution heatmap: 7 rows (days) × weeks, level 0–3 */
+export const heatmap: number[][] = (() => {
+  const rows = 7;
+  const cols = 20;
+  const grid: number[][] = [];
+  for (let r = 0; r < rows; r++) {
+    const line: number[] = [];
+    for (let c = 0; c < cols; c++) {
+      // deterministic pseudo-pattern (no Math.random in module scope)
+      const v = (r * 7 + c * 3) % 11;
+      line.push(v > 8 ? 3 : v > 6 ? 2 : v > 3 ? 1 : 0);
+    }
+    grid.push(line);
+  }
+  return grid;
+})();
+
+// --- seed ------------------------------------------------------------------
+function proj(
+  i: number,
+  name: string,
+  tag: Tag,
+  description: string,
+  stack: string,
+  metric: string,
+  year: string,
+  published: boolean,
+  cover: string,
+): Project {
+  return {
+    id: `seed-${i}`,
+    sortIndex: i,
+    slug: slugify(name),
+    name,
+    tag,
+    description,
+    stack,
+    metric,
+    year,
+    published,
+    coverUrl: cover,
+    media: [],
+    updatedAt: "2026-07-20T10:00:00.000Z",
+  };
+}
+
+export const seed: Store = {
+  profile: {
+    name: "Revellio",
+    role: "Full-stack Developer",
+    location: "Jakarta, Indonesia",
+    bio: "I build product-grade web apps and the CMS that feeds them — so content ships from a browser, not a git commit. Swiss discipline, measured results, honest caveats.",
+    email: "hello@revellio.dev",
+    github: "revellio",
+    linkedin: "revellio",
+    heroUrl: "/assets/hero.png",
+    photoUrl: "/assets/mainm.jpeg",
+    available: true,
+    cvVisible: true,
+  },
+  projects: [
+    proj(0, "Kanvas Studio", "Web App", "Real-time product configurator with a self-hosted content layer.", "Next.js · Three.js · GSAP", "60fps · +34% add-to-cart", "2026", true, "/assets/card.png"),
+    proj(1, "Loop Ledger", "Backend", "Event-sourced ledger with idempotent APIs and audit trails.", "Node · Postgres · Redis", "p99 2.8s → 86ms", "2026", true, "/assets/mainf.jpeg"),
+    proj(2, "Halftone UI", "UI Kit", "Accessible component kit — hairline system, zero radius, dark-first.", "React · Tailwind · RTL", "0 axe violations · 41 components", "2025", true, "/assets/mainm2.jpeg"),
+    proj(3, "Orbit Configurator", "3D / Motion", "Lazy-loaded R3F scene driving a case-study scroll timeline.", "R3F · Three.js · GSAP", "LCP 1.3s · 190kB first-load", "2025", true, "/assets/char1.png"),
+    proj(4, "Neon Branch Bot", "Open source", "Spins a Postgres branch per PR and comments the migration diff.", "TypeScript · Neon API · GH Actions", "1.2k stars · used in 40 repos", "2025", true, "/assets/char2.png"),
+    proj(5, "Revalidate CMS", "Web App", "The CMS running this site — tag-based revalidate, no deploy to publish.", "Next.js · Neon · Blob", "publish → live ≤ 60s", "2025", true, "/assets/char3.png"),
+    proj(6, "Type Meter", "UI Kit", "A tracking/leading playground that exports CSS tokens.", "React · Canvas", "used on 6 shipped sites", "2024", true, "/assets/icon1.png"),
+    proj(7, "Cold Start Killer", "Backend", "Connection-pool warmer + ISR cache for serverless Postgres.", "Node · Neon · Vercel", "cold p95 900ms → 120ms", "2024", true, "/assets/icon2.png"),
+    proj(8, "Diag", "Open source", "Renders architecture diagrams from a tiny text DSL.", "TypeScript · SVG", "480 stars", "2024", true, "/assets/icon3.png"),
+    proj(9, "Heatmap Kit", "UI Kit", "Contribution-style heatmap with 4 levels and no dependencies.", "React · CSS Grid", "1.4kB gzip", "2024", true, "/assets/jokerface2.png"),
+    proj(10, "Stripe Flow", "Web App", "Checkout flow spike — abandoned-cart recovery experiments.", "Next.js · Stripe", "+18% recovery", "2023", false, "/assets/newsign.png"),
+    proj(11, "First Portfolio", "Web App", "The site before this one. Kept as a marker of how far the bar moved.", "HTML · CSS · JS", "shipped, then outgrown", "2022", false, "/assets/P5_Joker_Chain_Chronicle_1.png"),
+  ],
+  posts: [
+    { id: "post-0", slug: "cms-without-a-cms", title: "A CMS without a CMS", dek: "Why I built the content layer instead of installing one, and what it cost.", topic: "Architecture", readMinutes: 8, publishedAt: "2026-06-14", published: true },
+    { id: "post-1", slug: "isr-in-anger", title: "ISR in anger", dek: "Serving DB content with zero loading spinners, and the 60-second contract.", topic: "Next.js", readMinutes: 6, publishedAt: "2026-04-02", published: true },
+    { id: "post-2", slug: "hairlines-not-shadows", title: "Hairlines, not shadows", dek: "A dark UI that separates layers with 1px lines and opacity — no elevation.", topic: "Design", readMinutes: 5, publishedAt: "2026-02-19", published: true },
+    { id: "post-3", slug: "budgeting-three-js", title: "Budgeting Three.js by the byte", dek: "Keeping a 3D case study under a 220kB first-load budget, checked in CI.", topic: "Performance", readMinutes: 7, publishedAt: "2025-11-30", published: true },
+    { id: "post-4", slug: "draft-untitled", title: "Untitled draft", dek: "Not ready yet.", topic: "Misc", readMinutes: 2, publishedAt: "2026-07-01", published: false },
+  ],
+  cvVersions: [
+    { id: "cv-3", version: 3, name: "revellio-cv-2026-07.pdf", sizeBytes: 214_000, isLive: true, uploadedAt: "2026-07-18T09:00:00.000Z" },
+    { id: "cv-2", version: 2, name: "revellio-cv-2026-03.pdf", sizeBytes: 208_400, isLive: false, uploadedAt: "2026-03-11T09:00:00.000Z" },
+    { id: "cv-1", version: 1, name: "revellio-cv-2025-10.pdf", sizeBytes: 198_100, isLive: false, uploadedAt: "2025-10-02T09:00:00.000Z" },
+  ],
+  media: [
+    { id: "m0", url: "/assets/card.png", caption: "Kanvas — hero" },
+    { id: "m1", url: "/assets/mainf.jpeg", caption: "Ledger — dashboard" },
+    { id: "m2", url: "/assets/mainm2.jpeg", caption: "Halftone — specimen" },
+    { id: "m3", url: "/assets/char1.png", caption: "Orbit — scene" },
+    { id: "m4", url: "/assets/char2.png", caption: "Neon Bot — PR" },
+    { id: "m5", url: "/assets/char3.png", caption: "Revalidate — editor" },
+    { id: "m6", url: "/assets/icon1.png", caption: "Type Meter" },
+    { id: "m7", url: "/assets/icon2.png", caption: "Cold Start" },
+  ],
+};
+
+/** derived: principles shown on Home */
+export const principles = [
+  { n: "01", title: "Ship the smallest thing that works", body: "The best code is the code never written. One line beats an abstraction with one caller." },
+  { n: "02", title: "Separate with lines, not space", body: "A hairline carries the same meaning as a shadow, at 1px and zero elevation." },
+  { n: "03", title: "Numbers carry context", body: "“Fast” means nothing. “p99 2.8s → 86ms” means something." },
+  { n: "04", title: "Honest caveats over clean claims", body: "Every metric ships with the case where it doesn’t hold. Trust compounds." },
+];

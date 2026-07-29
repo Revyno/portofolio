@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 142 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="Calque-1" serif:id="Calque 1" transform="matrix(0.391471,0,0,0.390625,-75.801789,-107.953984)">
+        <g id="g3013" transform="matrix(1,0,0,1,119,276.3622)">
+            <path id="polygon2989" d="M437.367,100.62L404.321,470.819L255.778,512L107.644,470.877L74.633,100.62L437.367,100.62Z" style="fill:rgb(38,77,228);fill-rule:nonzero;"/>
+            <path id="polygon2991" d="M376.03,447.246L404.27,130.894L256,130.894L256,480.523L376.03,447.246Z" style="fill:rgb(41,101,241);fill-rule:nonzero;"/>
+            <path id="polygon2993" d="M150.31,268.217L154.38,313.627L256,313.627L256,268.217L150.31,268.217Z" style="fill:rgb(235,235,235);fill-rule:nonzero;"/>
+            <path id="polygon2995" d="M256,176.305L142.132,176.305L146.26,221.716L256,221.716L256,176.305Z" style="fill:rgb(235,235,235);fill-rule:nonzero;"/>
+            <path id="polygon2997" d="M256,433.399L256,386.153L255.801,386.206L205.227,372.55L201.994,336.333L156.409,336.333L162.771,407.634L255.791,433.457L256,433.399Z" style="fill:rgb(235,235,235);fill-rule:nonzero;"/>
+            <path id="path2999" d="M160,0L215,0L215,23L183,23L183,46L215,46L215,69L160,69L160,0Z" style="fill-rule:nonzero;"/>
+            <path id="path3001" d="M226,0L281,0L281,20L249,20L249,24L281,24L281,70L226,70L226,49L258,49L258,45L226,45L226,0Z" style="fill-rule:nonzero;"/>
+            <path id="path3003" d="M292,0L347,0L347,20L315,20L315,24L347,24L347,70L292,70L292,49L324,49L324,45L292,45L292,0Z" style="fill-rule:nonzero;"/>
+            <path id="polygon3005" d="M311.761,313.627L306.49,372.521L255.843,386.191L255.843,433.435L348.937,407.634L349.62,399.962L360.291,280.411L361.399,268.217L369.597,176.305L255.843,176.305L255.843,221.716L319.831,221.716L315.699,268.217L255.843,268.217L255.843,313.627L311.761,313.627Z" style="fill:white;fill-rule:nonzero;"/>
+        </g>
+    </g>
+</svg>

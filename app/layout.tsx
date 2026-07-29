@@ -1,33 +1,25 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Barlow_Condensed } from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const bebas = Bebas_Neue({
-  variable: "--font-bebas",
-  weight: "400",
-  subsets: ["latin"],
-});
-
-const barlow = Barlow_Condensed({
-  variable: "--font-barlow",
-  weight: ["400", "500", "600"],
+const plex = IBM_Plex_Mono({
+  variable: "--font-plex",
+  weight: ["400", "500"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Revellio Portfolio",
+  title: "Revellio — Full-stack Developer",
   description:
-    "Portfolio of Revellio Christopel Oktufovian Lumbaa — Software Engineer",
+    "Portfolio & self-hosted CMS. Swiss / dark minimal. Built with Next.js 16, React 19, TypeScript.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${bebas.variable} ${barlow.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="h-full" suppressHydrationWarning>{children}</body>
+    <html lang="en" className={plex.variable} suppressHydrationWarning>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
