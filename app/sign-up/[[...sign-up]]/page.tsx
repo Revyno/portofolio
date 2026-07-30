@@ -1,0 +1,19 @@
+import { SignUp } from "@clerk/nextjs";
+
+export default function SignUpPage() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-s0 px-6">
+      <SignUp
+        appearance={{
+          variables: {
+            colorPrimary: "#4CE0FF",
+            colorBackground: "#0E0E0E",
+            colorText: "#ffffff",
+            colorInputBackground: "#111111",
+            borderRadius: "0px",
+          },
+        }}
+      />
+    </main>
+  );
+}

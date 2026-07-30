@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const plex = IBM_Plex_Mono({
@@ -9,7 +10,7 @@ const plex = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Revellio — Full-stack Developer",
+  title: "Revellio Christopel Oktufovian Lumbaa — Full-stack Developer",
   description:
     "Portfolio & self-hosted CMS. Swiss / dark minimal. Built with Next.js 16, React 19, TypeScript.",
 };
@@ -18,8 +19,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={plex.variable} suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={plex.variable} suppressHydrationWarning>
+        <body suppressHydrationWarning>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

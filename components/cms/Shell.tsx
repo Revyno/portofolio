@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useProjects, useMedia, useCvVersions, useProfile } from "@/lib/store";
+import { UserButton } from "@clerk/nextjs";
+import { useProjects, useMedia, useCvVersions } from "@/lib/store";
 
 export type TabId =
   | "overview"
@@ -40,7 +41,7 @@ function Sidebar({ tab, setTab }: { tab: TabId; setTab: (t: TabId) => void }) {
     <aside className="flex w-[250px] flex-col border-r border-[var(--line)] bg-s1">
       <div className="border-b border-[var(--line)] px-6 py-5">
         <div className="mono text-[13px] font-medium tracking-[0.14em] text-white">
-          REVELLIO<span className="text-accent">.</span>CMS
+          REVELLIO CHRISTOPEL OKTUFOVIAN LUMBAA
         </div>
         <div className="mono mt-1 text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)]">
           Content console
@@ -72,7 +73,7 @@ function Sidebar({ tab, setTab }: { tab: TabId; setTab: (t: TabId) => void }) {
       <div className="border-t border-[var(--line)] px-6 py-4">
         <div className="mono flex items-center gap-2 text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)]">
           <span className="inline-block h-[6px] w-[6px]" style={{ background: "var(--positive)" }} />
-          Mock store · localStorage
+          Neon Postgres · live
         </div>
         <Link href="/" className="mono mt-2 block text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-accent">
           ← View site
@@ -83,8 +84,6 @@ function Sidebar({ tab, setTab }: { tab: TabId; setTab: (t: TabId) => void }) {
 }
 
 function Topbar({ tab }: { tab: TabId }) {
-  const profile = useProfile();
-  const initials = profile.name.slice(0, 2).toUpperCase();
   return (
     <header className="flex h-[70px] items-center justify-between border-b border-[var(--line)] px-8">
       <div className="mono text-[11px] uppercase tracking-[0.14em] text-[var(--t-muted)]">
@@ -96,9 +95,9 @@ function Topbar({ tab }: { tab: TabId }) {
           placeholder="Search…"
           className="mono hidden w-[220px] border border-[var(--line-box)] bg-field px-3 py-2 text-[11px] text-white placeholder:text-[var(--t-ghost)] outline-none focus:border-accent md:block"
         />
-        <div className="flex h-[34px] w-[34px] items-center justify-center border border-[var(--line-box)] bg-field">
-          <span className="mono text-[11px] text-white">{initials}</span>
-        </div>
+        <UserButton
+          appearance={{ elements: { avatarBox: "h-[34px] w-[34px] rounded-none" } }}
+        />
       </div>
     </header>
   );

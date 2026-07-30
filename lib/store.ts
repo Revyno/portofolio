@@ -1,10 +1,13 @@
 "use client";
 
 /**
- * Mock content store — localStorage-backed, framework-free.
- * Stands in for the Neon+Blob backend (PRD §6-7). Every CMS mutation
- * here maps to one Route Handler + revalidateTag('content') later.
- * ponytail: swap this module for fetch() calls to /api/* when the DB lands.
+ * Client content store, backed by Neon via /api/content + /api/mutate.
+ * Same export surface as before — pages/CMS are untouched. Strategy:
+ *   read  → hydrate once from /api/content, keep in memory, subscribe for updates
+ *   write → optimistic local mutation (instant toast/AC6) then POST /api/mutate;
+ *           server returns the affected slice and we reconcile with truth.
+ * ponytail: no ISR consumer yet, so freshness across tabs relies on this fetch,
+ * not revalidateTag. Convert public pages to RSC to get cross-client ISR.
  */
 
 import { useSyncExternalStore } from "react";
@@ -20,56 +23,68 @@ import {
   type CvVersion,
 } from "./data";
 
-const KEY = "revellio.store.v1";
-
-// deterministic id (no Math.random — banned in some runtimes, and stable ids help)
-let idc = 0;
-function uid(prefix: string): string {
-  idc += 1;
-  return `${prefix}-${Date.now().toString(36)}-${idc}`;
-}
-
-function load(): Store {
-  if (typeof window === "undefined") return structuredClone(seed);
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return structuredClone(seed);
-    return JSON.parse(raw) as Store;
-  } catch {
-    return structuredClone(seed);
-  }
-}
-
-let state: Store = load();
+// --- in-memory state + subscription ---------------------------------------
+let state: Store = structuredClone(seed); // seed = SSR/first-paint fallback
 const listeners = new Set<() => void>();
+let hydrated = false;
 
-function persist() {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  }
-}
 function emit() {
-  persist();
   listeners.forEach((l) => l());
 }
 function set(next: Store) {
   state = next;
   emit();
 }
+function patch(slice: Partial<Store>) {
+  set({ ...state, ...slice });
+}
 function subscribe(cb: () => void) {
   listeners.add(cb);
+  hydrate(); // lazy: first subscriber triggers the network read
   return () => listeners.delete(cb);
 }
 
-// --- read hooks ------------------------------------------------------------
-function useSlice<T>(selector: (s: Store) => T, serverFallback: T): T {
-  return useSyncExternalStore(
-    subscribe,
-    () => selector(state),
-    () => serverFallback,
-  );
+async function hydrate() {
+  if (hydrated || typeof window === "undefined") return;
+  hydrated = true;
+  try {
+    const res = await fetch("/api/content", { cache: "no-store" });
+    if (res.ok) set((await res.json()) as Store);
+  } catch {
+    hydrated = false; // allow retry on next subscribe
+  }
 }
 
+// fire a mutation; reconcile returned slice(s) with server truth
+async function mutate(action: string, args: Record<string, unknown> = {}) {
+  try {
+    const res = await fetch("/api/mutate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action, args }),
+    });
+    if (res.ok) {
+      const slice = (await res.json()) as Partial<Store>;
+      patch(slice);
+    }
+  } catch {
+    // network failed: re-pull authoritative state
+    hydrated = false;
+    hydrate();
+  }
+}
+
+// local id for optimistic inserts (replaced by server uuid on reconcile)
+let idc = 0;
+function tmpId(prefix: string): string {
+  idc += 1;
+  return `tmp-${prefix}-${idc}`;
+}
+
+// --- read hooks (unchanged signatures) -------------------------------------
+function useSlice<T>(selector: (s: Store) => T, serverFallback: T): T {
+  return useSyncExternalStore(subscribe, () => selector(state), () => serverFallback);
+}
 export function useProjects(): Project[] {
   return useSlice((s) => s.projects, seed.projects);
 }
@@ -86,16 +101,13 @@ export function useMedia(): MediaItem[] {
   return useSlice((s) => s.media, seed.media);
 }
 
-// non-reactive reads (routing / server)
 export function getSeedProjectBySlug(slug: string): Project | undefined {
   return seed.projects.find((p) => p.slug === slug);
 }
 
-// --- derived ---------------------------------------------------------------
+// --- derived (pure, unchanged) ---------------------------------------------
 export function reindex(list: Project[]): Project[] {
-  return [...list]
-    .sort((a, b) => a.sortIndex - b.sortIndex)
-    .map((p, i) => ({ ...p, sortIndex: i }));
+  return [...list].sort((a, b) => a.sortIndex - b.sortIndex).map((p, i) => ({ ...p, sortIndex: i }));
 }
 export function publicProjects(list: Project[]): Project[] {
   return reindex(list.filter((p) => p.published));
@@ -107,22 +119,14 @@ export function saveProject(input: Partial<Project> & { id?: string }): Project 
   const existing = input.id ? state.projects.find((p) => p.id === input.id) : undefined;
 
   if (existing) {
-    const updated: Project = {
-      ...existing,
-      ...input,
-      name,
-      slug: slugify(name),
-      updatedAt: new Date().toISOString(),
-    };
-    const projects = reindex(
-      state.projects.map((p) => (p.id === existing.id ? updated : p)),
-    );
-    set({ ...state, projects });
-    return projects.find((p) => p.id === existing.id)!;
+    const updated: Project = { ...existing, ...input, name, slug: slugify(name), updatedAt: new Date().toISOString() };
+    patch({ projects: reindex(state.projects.map((p) => (p.id === existing.id ? updated : p))) });
+    void mutate("updateProject", { ...input, id: existing.id, name });
+    return updated;
   }
 
   const created: Project = {
-    id: uid("proj"),
+    id: tmpId("proj"),
     sortIndex: state.projects.length,
     slug: slugify(name),
     name,
@@ -136,22 +140,23 @@ export function saveProject(input: Partial<Project> & { id?: string }): Project 
     media: input.media ?? [],
     updatedAt: new Date().toISOString(),
   };
-  const projects = reindex([...state.projects, created]);
-  set({ ...state, projects });
-  return projects.find((p) => p.id === created.id)!;
+  patch({ projects: reindex([...state.projects, created]) });
+  void mutate("createProject", { ...input, name });
+  return created;
 }
 
 export function deleteProject(id: string) {
-  set({ ...state, projects: reindex(state.projects.filter((p) => p.id !== id)) });
+  patch({ projects: reindex(state.projects.filter((p) => p.id !== id)) });
+  void mutate("deleteProject", { id });
 }
 
 export function togglePublished(id: string) {
-  set({
-    ...state,
+  patch({
     projects: state.projects.map((p) =>
       p.id === id ? { ...p, published: !p.published, updatedAt: new Date().toISOString() } : p,
     ),
   });
+  void mutate("toggleProjectPublished", { id });
 }
 
 export function moveProject(id: string, dir: -1 | 1) {
@@ -160,12 +165,14 @@ export function moveProject(id: string, dir: -1 | 1) {
   const j = i + dir;
   if (i < 0 || j < 0 || j >= list.length) return;
   [list[i].sortIndex, list[j].sortIndex] = [list[j].sortIndex, list[i].sortIndex];
-  set({ ...state, projects: reindex(list) });
+  patch({ projects: reindex(list) });
+  void mutate("moveProject", { id, dir });
 }
 
 // --- profile ---------------------------------------------------------------
-export function saveProfile(patch: Partial<Profile>) {
-  set({ ...state, profile: { ...state.profile, ...patch } });
+export function saveProfile(patchInput: Partial<Profile>) {
+  patch({ profile: { ...state.profile, ...patchInput } });
+  void mutate("updateProfile", patchInput);
 }
 
 // --- posts -----------------------------------------------------------------
@@ -174,11 +181,12 @@ export function savePost(input: Partial<Post> & { id?: string }): Post {
   const existing = input.id ? state.posts.find((p) => p.id === input.id) : undefined;
   if (existing) {
     const updated: Post = { ...existing, ...input, title, slug: slugify(title) };
-    set({ ...state, posts: state.posts.map((p) => (p.id === existing.id ? updated : p)) });
+    patch({ posts: state.posts.map((p) => (p.id === existing.id ? updated : p)) });
+    void mutate("savePost", { ...input, id: existing.id });
     return updated;
   }
   const created: Post = {
-    id: uid("post"),
+    id: tmpId("post"),
     slug: slugify(title),
     title,
     dek: input.dek ?? "",
@@ -187,57 +195,57 @@ export function savePost(input: Partial<Post> & { id?: string }): Post {
     publishedAt: input.publishedAt ?? new Date().toISOString().slice(0, 10),
     published: input.published ?? false,
   };
-  set({ ...state, posts: [created, ...state.posts] });
+  patch({ posts: [created, ...state.posts] });
+  void mutate("savePost", input);
   return created;
 }
 export function deletePost(id: string) {
-  set({ ...state, posts: state.posts.filter((p) => p.id !== id) });
+  patch({ posts: state.posts.filter((p) => p.id !== id) });
+  void mutate("deletePost", { id });
 }
 export function togglePostPublished(id: string) {
-  set({
-    ...state,
-    posts: state.posts.map((p) => (p.id === id ? { ...p, published: !p.published } : p)),
-  });
+  patch({ posts: state.posts.map((p) => (p.id === id ? { ...p, published: !p.published } : p)) });
+  void mutate("togglePostPublished", { id });
 }
 
 // --- media -----------------------------------------------------------------
 export function addMedia(url: string, caption = ""): MediaItem {
-  const item: MediaItem = { id: uid("m"), url, caption };
-  set({ ...state, media: [item, ...state.media] });
+  const item: MediaItem = { id: tmpId("m"), url, caption };
+  patch({ media: [item, ...state.media] });
+  void mutate("addMedia", { url, caption });
   return item;
 }
 export function deleteMedia(id: string) {
-  set({ ...state, media: state.media.filter((m) => m.id !== id) });
+  patch({ media: state.media.filter((m) => m.id !== id) });
+  void mutate("deleteMedia", { id });
 }
 
 // --- cv --------------------------------------------------------------------
 export function addCvVersion(name: string, sizeBytes: number): CvVersion {
   const version = Math.max(0, ...state.cvVersions.map((v) => v.version)) + 1;
   const created: CvVersion = {
-    id: uid("cv"),
+    id: tmpId("cv"),
     version,
     name,
     sizeBytes,
     isLive: true,
     uploadedAt: new Date().toISOString(),
   };
-  set({
-    ...state,
-    cvVersions: [created, ...state.cvVersions.map((v) => ({ ...v, isLive: false }))],
-  });
+  patch({ cvVersions: [created, ...state.cvVersions.map((v) => ({ ...v, isLive: false }))] });
+  void mutate("addCvVersion", { name, sizeBytes });
   return created;
 }
 export function restoreCvVersion(id: string) {
-  set({
-    ...state,
-    cvVersions: state.cvVersions.map((v) => ({ ...v, isLive: v.id === id })),
-  });
+  patch({ cvVersions: state.cvVersions.map((v) => ({ ...v, isLive: v.id === id })) });
+  void mutate("restoreCvVersion", { id });
 }
 
 // --- settings / danger -----------------------------------------------------
 export function unpublishAll() {
-  set({ ...state, projects: state.projects.map((p) => ({ ...p, published: false })) });
+  patch({ projects: state.projects.map((p) => ({ ...p, published: false })) });
+  void mutate("unpublishAll");
 }
 export function resetToSeed() {
-  set(structuredClone(seed));
+  set(structuredClone(seed)); // optimistic; server returns authoritative store
+  void mutate("resetToSeed");
 }

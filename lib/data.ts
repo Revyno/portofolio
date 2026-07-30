@@ -179,9 +179,9 @@ export const seed: Store = {
   profile: {
     name: "Revellio",
     role: "Full-stack Developer",
-    location: "Jakarta, Indonesia",
+    location: "Surabaya, Indonesia",
     bio: "I build product-grade web apps and the CMS that feeds them — so content ships from a browser, not a git commit. Swiss discipline, measured results, honest caveats.",
-    email: "hello@revellio.dev",
+    email: "reveliowalker22@gmail.com",
     github: "revellio",
     linkedin: "revellio",
     heroUrl: "/assets/hero.png",

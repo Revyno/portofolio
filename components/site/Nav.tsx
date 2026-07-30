@@ -48,7 +48,7 @@ export function Nav() {
               className={`px-[18px] py-[9px] transition-colors ${
                 isActive(pathname, "/contact")
                   ? "bg-white text-[#0b0b0b]"
-                  : "bg-accent text-[#0b0b0b] hover:bg-[#4CE0FF]"
+                  : "bg-accent text-[#4CE0FF] hover:bg-[#4CE0FF]"
               }`}
             >
               Contact

@@ -23,6 +23,9 @@ export function Footer() {
           © 2026 Revellio
         </div>
         <div className="mono flex gap-6 text-[10px] uppercase tracking-[0.16em] text-[var(--t-muted)]">
+           <a href="https://github.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
+            LinkedIn ↗
+          </a>
           <a href="https://github.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
             GitHub ↗
           </a>

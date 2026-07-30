@@ -49,7 +49,7 @@ export default function HomePage() {
             <MetaStrip
               items={[
                 { label: "Role", value: profile.role },
-                { label: "Focus", value: "Web apps · CMS · 3D" },
+                { label: "Focus", value: "Web · Apps · 3D Design" },
                 { label: "Status", value: profile.available ? "Available for work" : "Not available", accent: profile.available },
                 { label: "Based in", value: profile.location },
               ]}
@@ -113,20 +113,20 @@ export default function HomePage() {
           <div className="grid gap-10 md:grid-cols-12 md:gap-6">
             <div className="md:col-span-5">
               <h2 className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
-                One click. Live in 60 seconds.
+                Just Type
               </h2>
               <p className="mt-4 text-[15px] text-[var(--t-body)]">
-                A CMS mutation writes to Postgres and revalidates one tag. No build, no deploy — the
-                public grid reads the new value on the next request.
+               Use the cli terminal to change routes for commands, the usage is the same as using linux etc.
               </p>
             </div>
             <div className="md:col-span-7">
               <Terminal
+                href="/work"
                 lines={[
-                  { kind: "comment", text: "publish a project from the CMS" },
-                  { kind: "cmd", text: "PATCH /api/projects/kanvas-studio/publish" },
+                  { kind: "comment", text: "use this to change routes or links" },
+                  // { kind: "cmd", text: "PATCH /api/projects/kanvas-studio/publish" },
                   { kind: "out", text: "→ projects.published = true" },
-                  { kind: "cmd", text: "revalidateTag('content')" },
+                  { kind: "cmd", text: "sudo apt update ....." },
                   { kind: "ok", text: "✓ /work revalidated in 41ms — live" },
                 ]}
               />
