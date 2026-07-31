@@ -85,7 +85,11 @@ function CertificateInner() {
       />
 
       <Box border="1px solid" borderColor="line">
-        <Table.Root size="sm" css={{ "& td, & th": { borderColor: "var(--chakra-colors-line)" } }}>
+        <Table.Root
+          size="sm"
+          bg="s0"
+          css={{ "& td, & th": { borderColor: "var(--chakra-colors-line)", background: "transparent" } }}
+        >
           <Table.Header>
             <Table.Row bg="s1">
               <Th>Cover</Th>
@@ -98,7 +102,7 @@ function CertificateInner() {
           </Table.Header>
           <Table.Body>
             {certificates.map((c) => (
-              <Table.Row key={c.id} _hover={{ bg: "rgba(76,224,255,0.05)" }}>
+              <Table.Row key={c.id} bg="s0" _hover={{ bg: "rgba(76,224,255,0.06)" }}>
                 <Td>
                   {c.coverUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -141,6 +145,8 @@ function CertificateInner() {
                     textTransform="uppercase"
                     borderColor="lineBox"
                     color={c.published ? "accent" : "muted"}
+                    transition="border-color 0.15s, color 0.15s"
+                    _hover={{ borderColor: "accent", color: c.published ? "accent" : "white" }}
                   >
                     {c.published ? "● Live" : "○ Draft"}
                   </Button>

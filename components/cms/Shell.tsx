@@ -78,7 +78,7 @@ function Sidebar({ tab, setTab }: { tab: TabId; setTab: (t: TabId) => void }) {
           <span className="inline-block h-[6px] w-[6px]" style={{ background: "var(--positive)" }} />
           Neon Postgres · live
         </div>
-        <Link href="/" className="mono mt-2 block text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-accent">
+        <Link href="/" className="mono mt-2 block text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] transition-colors hover:text-accent">
           ← View site
         </Link>
       </div>
@@ -128,8 +128,8 @@ export function CmsShell({
             <button
               key={n.id}
               onClick={() => setTab(n.id)}
-              className={`mono whitespace-nowrap px-3 py-2 text-[10px] uppercase tracking-[0.12em] ${
-                tab === n.id ? "bg-accent text-[#0b0b0b]" : "text-[var(--t-muted)]"
+              className={`mono whitespace-nowrap px-3 py-2 text-[10px] uppercase tracking-[0.12em] transition-colors ${
+                tab === n.id ? "bg-accent text-[#0b0b0b]" : "text-[var(--t-muted)] hover:text-white"
               }`}
             >
               {n.label}

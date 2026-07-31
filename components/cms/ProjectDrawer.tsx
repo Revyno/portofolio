@@ -67,7 +67,7 @@ export function ProjectDrawer({
           <h2 className="text-[21px] font-bold tracking-[-0.03em] text-white">
             {isNew ? "New project" : "Edit project"}
           </h2>
-          <button onClick={onClose} className="mono text-[13px] text-[var(--t-muted)] hover:text-white">
+          <button onClick={onClose} className="mono text-[13px] text-[var(--t-muted)] transition-colors hover:text-white">
             ✕
           </button>
         </div>
@@ -121,7 +121,7 @@ export function ProjectDrawer({
                 <Image src={form.coverUrl} alt="cover" fill sizes="520px" className="object-cover" />
                 <button
                   onClick={() => upd("coverUrl", null)}
-                  className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white"
+                  className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-black/90"
                 >
                   Replace ✕
                 </button>

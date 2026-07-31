@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   useProjects,
@@ -153,14 +153,14 @@ export function ProjectsTab() {
               className="mono hidden items-center justify-end gap-2 text-[13px] text-[var(--t-muted)] md:flex"
               onClick={(e) => e.stopPropagation()}
             >
-              <button className="hover:text-white" onClick={() => moveProject(p.id, -1)}>
+              <button className="transition-colors hover:text-white" onClick={() => moveProject(p.id, -1)}>
                 ↑
               </button>
-              <button className="hover:text-white" onClick={() => moveProject(p.id, 1)}>
+              <button className="transition-colors hover:text-white" onClick={() => moveProject(p.id, 1)}>
                 ↓
               </button>
               <button
-                className="hover:text-danger"
+                className="transition-colors hover:text-danger"
                 title={`Delete ${p.name}`}
                 onClick={() => {
                   if (confirm(`Delete “${p.name}”? This removes it from the site and the table.`)) {
@@ -201,7 +201,7 @@ export function MediaTab() {
             <div className="relative aspect-[3/4] max-w-[260px] border border-[var(--line-box)]">
               <Image src={profile.heroUrl} alt="hero" fill sizes="260px" className="object-cover" />
               <button
-                className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white"
+                className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-black/90"
                 onClick={() => saveProfile({ heroUrl: null })}
               >
                 Clear ✕
@@ -225,7 +225,7 @@ export function MediaTab() {
             <div className="relative aspect-[3/4] max-w-[200px] border border-[var(--line-box)]">
               <Image src={profile.photoUrl} alt="photo" fill sizes="200px" className="object-cover" />
               <button
-                className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white"
+                className="mono absolute right-2 top-2 bg-black/70 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-white transition-colors hover:bg-black/90"
                 onClick={() => saveProfile({ photoUrl: null })}
               >
                 Clear ✕
@@ -267,7 +267,7 @@ export function MediaTab() {
                   {m.caption || "—"}
                 </span>
                 <button
-                  className="mono text-[10px] text-[var(--t-muted)] hover:text-danger"
+                  className="mono text-[10px] text-[var(--t-muted)] transition-colors hover:text-danger"
                   onClick={() => deleteMedia(m.id)}
                 >
                   ✕
@@ -284,38 +284,62 @@ export function MediaTab() {
 /* ---- C4 Profile ----------------------------------------------------------- */
 export function ProfileTab() {
   const profile = useProfile();
+  // Local draft so typing stays instant — /api/mutate round-trips no longer
+  // overwrite the field on every keystroke (that caused dropped chars & delay).
+  const [form, setForm] = useState(profile);
+
+  // Adopt server profile (hydration / external change) but ignore the echo that
+  // our own debounced save produces — otherwise the field resets mid-typing.
+  useEffect(() => {
+    setForm((f) => (JSON.stringify(f) === JSON.stringify(profile) ? f : profile));
+  }, [profile]);
+
+  // Debounce the network write — but only when the draft actually differs from
+  // server truth. Guards the mount echo and the setForm(profile) re-sync above,
+  // which would otherwise ping-pong saves against the API.
+  useEffect(() => {
+    if (JSON.stringify(form) === JSON.stringify(profile)) return;
+    const t = setTimeout(() => saveProfile(form), 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
+  function upd<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
   return (
     <div>
       <TabHead title="Profile" sub="Shown across the public site." />
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-5">
           <Field label="Name">
-            <Input value={profile.name} onChange={(e) => saveProfile({ name: e.target.value })} />
+            <Input value={form.name} onChange={(e) => upd("name", e.target.value)} />
           </Field>
           <Field label="Role">
-            <Input value={profile.role} onChange={(e) => saveProfile({ role: e.target.value })} />
+            <Input value={form.role} onChange={(e) => upd("role", e.target.value)} />
           </Field>
           <Field label="Location">
-            <Input value={profile.location} onChange={(e) => saveProfile({ location: e.target.value })} />
+            <Input value={form.location} onChange={(e) => upd("location", e.target.value)} />
           </Field>
           <Field label="Bio">
-            <Textarea rows={4} value={profile.bio} onChange={(e) => saveProfile({ bio: e.target.value })} />
+            <Textarea rows={4} value={form.bio} onChange={(e) => upd("bio", e.target.value)} />
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Email">
-              <Input value={profile.email} onChange={(e) => saveProfile({ email: e.target.value })} />
+              <Input value={form.email} onChange={(e) => upd("email", e.target.value)} />
             </Field>
             <Field label="GitHub">
-              <Input value={profile.github} onChange={(e) => saveProfile({ github: e.target.value })} />
+              <Input value={form.github} onChange={(e) => upd("github", e.target.value)} />
             </Field>
           </div>
           <div className="flex items-center justify-between border-t border-[var(--line)] pt-5">
             <span className="text-[14px] text-white">Available for work</span>
-            <Toggle on={profile.available} onChange={(v) => saveProfile({ available: v })} />
+            <Toggle on={form.available} onChange={(v) => upd("available", v)} />
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[14px] text-white">Save button</span>
-            <CmsButton onClick={() => toast("Profile saved")}>Save</CmsButton>
+            <CmsButton onClick={() => { saveProfile(form); toast("Profile saved"); }}>Save</CmsButton>
           </div>
         </div>
 
@@ -324,14 +348,14 @@ export function ProfileTab() {
           <div className="meta-label mb-3">Live preview</div>
           <div className="border border-[var(--line-box)] p-6">
             <div className="eyebrow mb-3">
-              {profile.role} · {profile.location}
+              {form.role} · {form.location}
             </div>
             <div className="text-[28px] font-bold leading-[0.95] tracking-[-0.04em] text-white">
-              {profile.name}
+              {form.name}
             </div>
-            <p className="mt-3 text-[14px] text-[var(--t-body)]">{profile.bio}</p>
+            <p className="mt-3 text-[14px] text-[var(--t-body)]">{form.bio}</p>
             <div className="mono mt-4 text-[10px] uppercase tracking-[0.14em] text-accent">
-              {profile.available ? "● Available for work" : "○ Not available"}
+              {form.available ? "● Available for work" : "○ Not available"}
             </div>
           </div>
         </div>
@@ -405,7 +429,7 @@ export function CvTab() {
                   <StatusPill published />
                 ) : (
                   <button
-                    className="mono text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-accent"
+                    className="mono text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)] transition-colors hover:text-accent"
                     onClick={() => {
                       restoreCvVersion(v.id);
                       toast(`Restored v${v.version}`);
@@ -470,7 +494,7 @@ export function SettingsTab() {
         <div className="mono mb-4 text-[10px] uppercase tracking-[0.16em] text-danger">Danger zone</div>
         <div className="flex flex-wrap gap-4">
           <button
-            className="mono border border-[var(--line-box)] px-[18px] py-[11px] text-[11px] uppercase tracking-[0.14em] text-white hover:border-danger hover:text-danger"
+            className="mono border border-[var(--line-box)] px-[18px] py-[11px] text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:border-danger hover:text-danger"
             onClick={() => {
               if (confirm("Unpublish every project?")) {
                 unpublishAll();
@@ -481,7 +505,7 @@ export function SettingsTab() {
             Unpublish all
           </button>
           <button
-            className="mono border border-[var(--line-box)] px-[18px] py-[11px] text-[11px] uppercase tracking-[0.14em] text-white hover:border-danger hover:text-danger"
+            className="mono border border-[var(--line-box)] px-[18px] py-[11px] text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:border-danger hover:text-danger"
             onClick={() => {
               if (confirm("Reset all content to seed? Local changes are lost.")) {
                 resetToSeed();

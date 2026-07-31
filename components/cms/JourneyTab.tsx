@@ -81,7 +81,11 @@ function JourneyInner() {
       />
 
       <Box border="1px solid" borderColor="line">
-        <Table.Root size="sm" css={{ "& td, & th": { borderColor: "var(--chakra-colors-line)" } }}>
+        <Table.Root
+          size="sm"
+          bg="s0"
+          css={{ "& td, & th": { borderColor: "var(--chakra-colors-line)", background: "transparent" } }}
+        >
           <Table.Header>
             <Table.Row bg="s1">
               <Th>Date</Th>
@@ -93,7 +97,7 @@ function JourneyInner() {
           </Table.Header>
           <Table.Body>
             {journey.map((j) => (
-              <Table.Row key={j.id} _hover={{ bg: "rgba(76,224,255,0.05)" }}>
+              <Table.Row key={j.id} bg="s0" _hover={{ bg: "rgba(76,224,255,0.06)" }}>
                 <Td>
                   <Text fontFamily="mono" fontSize="12px" color="muted">
                     {j.date}
@@ -124,6 +128,8 @@ function JourneyInner() {
                     textTransform="uppercase"
                     borderColor="lineBox"
                     color={j.published ? "accent" : "muted"}
+                    transition="border-color 0.15s, color 0.15s"
+                    _hover={{ borderColor: "accent", color: j.published ? "accent" : "white" }}
                   >
                     {j.published ? "● Live" : "○ Draft"}
                   </Button>

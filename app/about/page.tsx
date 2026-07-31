@@ -56,6 +56,7 @@ export default function AboutPage() {
           </div>
         </Section>
       </Shell>
+      
 
       {/* Contribution + skills */}
       <Shell>
@@ -85,8 +86,13 @@ export default function AboutPage() {
       </Shell>
 
       {/* Stack marquee */}
-      <div className="border-t border-b border-[var(--line)]">
-        <TechMarquee />
+      {/* add  center eyebrow heading */}
+
+      <div className="flex flex-col items-center">
+        <Eyebrow>Tech & Tools</Eyebrow>
+        <div className="w-full border-t border-b border-[var(--line)]">
+          <TechMarquee />
+        </div>
       </div>
 
       {/* Certificate */}
