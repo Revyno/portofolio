@@ -43,12 +43,19 @@ export async function POST(req: NextRequest) {
       case "updateProfile":
         return Response.json({ profile: await db.updateProfile(a) });
 
-      case "savePost":
-        return Response.json({ posts: await db.savePost(a) });
-      case "deletePost":
-        return Response.json({ posts: await db.deletePost(a.id as string) });
-      case "togglePostPublished":
-        return Response.json({ posts: await db.togglePostPublished(a.id as string) });
+      case "saveJourney":
+        return Response.json({ journey: await db.saveJourney(a) });
+      case "deleteJourney":
+        return Response.json({ journey: await db.deleteJourney(a.id as string) });
+      case "toggleJourneyPublished":
+        return Response.json({ journey: await db.toggleJourneyPublished(a.id as string) });
+
+      case "saveCertificate":
+        return Response.json({ certificates: await db.saveCertificate(a) });
+      case "deleteCertificate":
+        return Response.json({ certificates: await db.deleteCertificate(a.id as string) });
+      case "toggleCertificatePublished":
+        return Response.json({ certificates: await db.toggleCertificatePublished(a.id as string) });
 
       case "addMedia":
         return Response.json({ media: await db.addMedia(a.url as string, (a.caption as string) ?? "") });

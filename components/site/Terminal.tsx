@@ -34,7 +34,7 @@ async function type(term: XTerm, text: string, ms = 14) {
 const ROUTES: Record<string, string> = {
   work: "/work",
   about: "/about",
-  writing: "/writing",
+  journey: "/journey",
   contact: "/contact",
   home: "/",
 };
@@ -102,13 +102,13 @@ export function Terminal({
 
       if (name === "help") {
         t.write(`${GHOST}commands:${R}\r\n`);
-        t.write("  work, about, writing, contact, home   navigate\r\n");
+        t.write("  work, about, journey, contact, home   navigate\r\n");
         t.write("  ls                                     list routes\r\n");
         t.write("  clear                                  clear screen\r\n");
         t.write("  help                                   this list\r\n");
         if (href) t.write(`  → try: ${href.replace("/", "") || "home"}\r\n`);
       } else if (name === "ls") {
-        t.write("work   about   writing   contact   home\r\n");
+        t.write("work   about   journey   contact   home\r\n");
       } else if (name === "clear") {
         t.clear();
       } else if (ROUTES[name]) {
@@ -222,12 +222,12 @@ export function Terminal({
           else if (l.kind === "ok") term.write(`${POS}${l.text}${R}\r\n`);
           else term.write(`${l.text}\r\n`);
         }
-        term.write(`${GHOST}— type a route name, 'help', or 'ls'. ↑↓ for history.${R}\r\n`);
+        term.write(`${GHOST}— type a route name, '/help', or 'ls'. ↑↓ for history.${R}\r\n`);
         writePrompt(term);
         term.onData(onData);
       } else {
         await play(term, lines);
-        term.write(`\r\n${GHOST}— type a route name, 'help', or 'ls'. ↑↓ for history.${R}`);
+        term.write(`\r\n${GHOST}— type a route name, '/help', or 'ls'. ↑↓ for history.${R}`);
         writePrompt(term);
         term.onData(onData);
       }

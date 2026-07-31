@@ -16,7 +16,8 @@ import {
   slugify,
   type Store,
   type Project,
-  type Post,
+  type Journey,
+  type Certificate,
   type Profile,
   type Tag,
   type MediaItem,
@@ -88,8 +89,11 @@ function useSlice<T>(selector: (s: Store) => T, serverFallback: T): T {
 export function useProjects(): Project[] {
   return useSlice((s) => s.projects, seed.projects);
 }
-export function usePosts(): Post[] {
-  return useSlice((s) => s.posts, seed.posts);
+export function useJourney(): Journey[] {
+  return useSlice((s) => s.journey, seed.journey);
+}
+export function useCertificates(): Certificate[] {
+  return useSlice((s) => s.certificates, seed.certificates);
 }
 export function useProfile(): Profile {
   return useSlice((s) => s.profile, seed.profile);
@@ -137,6 +141,8 @@ export function saveProject(input: Partial<Project> & { id?: string }): Project 
     year: input.year ?? String(new Date().getFullYear()),
     published: input.published ?? false,
     coverUrl: input.coverUrl ?? null,
+    liveUrl: input.liveUrl ?? null,
+    repoUrl: input.repoUrl ?? null,
     media: input.media ?? [],
     updatedAt: new Date().toISOString(),
   };
@@ -175,37 +181,68 @@ export function saveProfile(patchInput: Partial<Profile>) {
   void mutate("updateProfile", patchInput);
 }
 
-// --- posts -----------------------------------------------------------------
-export function savePost(input: Partial<Post> & { id?: string }): Post {
-  const title = (input.title ?? "").trim() || "Untitled post";
-  const existing = input.id ? state.posts.find((p) => p.id === input.id) : undefined;
+// --- journey ---------------------------------------------------------------
+export function saveJourney(input: Partial<Journey> & { id?: string }): Journey {
+  const title = (input.title ?? "").trim() || "Untitled milestone";
+  const existing = input.id ? state.journey.find((j) => j.id === input.id) : undefined;
   if (existing) {
-    const updated: Post = { ...existing, ...input, title, slug: slugify(title) };
-    patch({ posts: state.posts.map((p) => (p.id === existing.id ? updated : p)) });
-    void mutate("savePost", { ...input, id: existing.id });
+    const updated: Journey = { ...existing, ...input, title };
+    patch({ journey: state.journey.map((j) => (j.id === existing.id ? updated : j)) });
+    void mutate("saveJourney", { ...input, id: existing.id });
     return updated;
   }
-  const created: Post = {
-    id: tmpId("post"),
-    slug: slugify(title),
+  const created: Journey = {
+    id: tmpId("jrny"),
+    date: input.date ?? new Date().toISOString().slice(0, 10),
     title,
-    dek: input.dek ?? "",
-    topic: input.topic ?? "Misc",
-    readMinutes: input.readMinutes ?? 3,
-    publishedAt: input.publishedAt ?? new Date().toISOString().slice(0, 10),
+    org: input.org ?? "",
+    note: input.note ?? "",
     published: input.published ?? false,
   };
-  patch({ posts: [created, ...state.posts] });
-  void mutate("savePost", input);
+  patch({ journey: [created, ...state.journey] });
+  void mutate("saveJourney", input);
   return created;
 }
-export function deletePost(id: string) {
-  patch({ posts: state.posts.filter((p) => p.id !== id) });
-  void mutate("deletePost", { id });
+export function deleteJourney(id: string) {
+  patch({ journey: state.journey.filter((j) => j.id !== id) });
+  void mutate("deleteJourney", { id });
 }
-export function togglePostPublished(id: string) {
-  patch({ posts: state.posts.map((p) => (p.id === id ? { ...p, published: !p.published } : p)) });
-  void mutate("togglePostPublished", { id });
+export function toggleJourneyPublished(id: string) {
+  patch({ journey: state.journey.map((j) => (j.id === id ? { ...j, published: !j.published } : j)) });
+  void mutate("toggleJourneyPublished", { id });
+}
+
+// --- certificates ----------------------------------------------------------
+export function saveCertificate(input: Partial<Certificate> & { id?: string }): Certificate {
+  const title = (input.title ?? "").trim() || "Untitled certificate";
+  const existing = input.id ? state.certificates.find((c) => c.id === input.id) : undefined;
+  if (existing) {
+    const updated: Certificate = { ...existing, ...input, title };
+    patch({ certificates: state.certificates.map((c) => (c.id === existing.id ? updated : c)) });
+    void mutate("saveCertificate", { ...input, id: existing.id });
+    return updated;
+  }
+  const created: Certificate = {
+    id: tmpId("cert"),
+    sortIndex: state.certificates.length,
+    year: input.year ?? "",
+    title,
+    venue: input.venue ?? "",
+    coverUrl: input.coverUrl ?? null,
+    linkUrl: input.linkUrl ?? null,
+    published: input.published ?? false,
+  };
+  patch({ certificates: [...state.certificates, created] });
+  void mutate("saveCertificate", input);
+  return created;
+}
+export function deleteCertificate(id: string) {
+  patch({ certificates: state.certificates.filter((c) => c.id !== id) });
+  void mutate("deleteCertificate", { id });
+}
+export function toggleCertificatePublished(id: string) {
+  patch({ certificates: state.certificates.map((c) => (c.id === id ? { ...c, published: !c.published } : c)) });
+  void mutate("toggleCertificatePublished", { id });
 }
 
 // --- media -----------------------------------------------------------------

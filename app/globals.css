@@ -163,3 +163,10 @@ input, textarea, select {
     transparent 1px 9px
   );
 }
+
+/* line-mask reveal wrapper — clips each line so text can rise from below */
+.lr-mask {
+  overflow: hidden;
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
+}

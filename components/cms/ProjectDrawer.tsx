@@ -27,6 +27,8 @@ export function ProjectDrawer({
     year: base?.year ?? "2026",
     published: base?.published ?? false,
     coverUrl: base?.coverUrl ?? null,
+    liveUrl: base?.liveUrl ?? "",
+    repoUrl: base?.repoUrl ?? "",
   });
 
   if (project === null) return null;
@@ -36,7 +38,12 @@ export function ProjectDrawer({
   }
 
   function save() {
-    saveProject({ id: base?.id, ...form });
+    saveProject({
+      id: base?.id,
+      ...form,
+      liveUrl: form.liveUrl.trim() || null,
+      repoUrl: form.repoUrl.trim() || null,
+    });
     toast(isNew ? "Project created" : "Project saved");
     onClose();
   }
@@ -91,6 +98,22 @@ export function ProjectDrawer({
           </Field>
           <Field label="Metric">
             <Input value={form.metric} onChange={(e) => upd("metric", e.target.value)} placeholder="p99 2.8s → 86ms" />
+          </Field>
+          <Field label="Live URL">
+            <Input
+              type="url"
+              value={form.liveUrl}
+              onChange={(e) => upd("liveUrl", e.target.value)}
+              placeholder="https://example.com"
+            />
+          </Field>
+          <Field label="GitHub URL">
+            <Input
+              type="url"
+              value={form.repoUrl}
+              onChange={(e) => upd("repoUrl", e.target.value)}
+              placeholder="https://github.com/user/repo"
+            />
           </Field>
           <Field label="Cover image">
             {form.coverUrl ? (

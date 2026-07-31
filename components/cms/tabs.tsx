@@ -4,16 +4,13 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
   useProjects,
-  usePosts,
   useProfile,
   useCvVersions,
   useMedia,
   saveProfile,
   togglePublished,
   moveProject,
-  savePost,
-  deletePost,
-  togglePostPublished,
+  deleteProject,
   addMedia,
   deleteMedia,
   addCvVersion,
@@ -82,8 +79,8 @@ export function OverviewTab({ go }: { go: (t: string) => void }) {
           <div className="meta-label mb-4">Quick add</div>
           <div className="flex flex-wrap gap-3">
             <CmsButton onClick={() => go("projects")}>New project →</CmsButton>
-            <CmsButton variant="ghost" onClick={() => go("writing")}>
-              New post →
+            <CmsButton variant="ghost" onClick={() => go("journey")}>
+              New milestone →
             </CmsButton>
             <CmsButton variant="ghost" onClick={() => go("cv")}>
               Upload CV →
@@ -129,18 +126,18 @@ export function ProjectsTab() {
 
       <div className="border border-[var(--line)]">
         {/* header */}
-        <div className="mono hidden grid-cols-[52px_1.6fr_128px_1.3fr_92px_104px] gap-[14px] border-b border-[var(--line)] bg-s1 px-[30px] py-3 text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] md:grid">
+        <div className="mono hidden grid-cols-[52px_1.6fr_128px_1.3fr_92px_120px] gap-[14px] border-b border-[var(--line)] bg-s1 px-[30px] py-3 text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] md:grid">
           <span>#</span>
           <span>Name</span>
           <span>Tag</span>
           <span>Metric</span>
           <span>Status</span>
-          <span className="text-right">Order</span>
+          <span className="text-right">Actions</span>
         </div>
         {filtered.map((p) => (
           <div
             key={p.id}
-            className="grid cursor-pointer grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[var(--line)] px-4 py-4 transition-colors hover:bg-[var(--accent-hover)] md:grid-cols-[52px_1.6fr_128px_1.3fr_92px_104px] md:gap-[14px] md:px-[30px]"
+            className="grid cursor-pointer grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[var(--line)] px-4 py-4 transition-colors hover:bg-[var(--accent-hover)] md:grid-cols-[52px_1.6fr_128px_1.3fr_92px_120px] md:gap-[14px] md:px-[30px]"
             onClick={() => setEditing(p)}
           >
             <span className="mono text-[12.5px] text-[var(--t-muted)]">{pad(p.sortIndex + 1)}</span>
@@ -162,12 +159,28 @@ export function ProjectsTab() {
               <button className="hover:text-white" onClick={() => moveProject(p.id, 1)}>
                 ↓
               </button>
+              <button
+                className="hover:text-danger"
+                title={`Delete ${p.name}`}
+                onClick={() => {
+                  if (confirm(`Delete “${p.name}”? This removes it from the site and the table.`)) {
+                    deleteProject(p.id);
+                    toast("Project deleted");
+                  }
+                }}
+              >
+                ✕
+              </button>
             </span>
           </div>
         ))}
       </div>
 
-      <ProjectDrawer project={editing} onClose={() => setEditing(null)} />
+      <ProjectDrawer
+        key={editing === "new" ? "new" : (editing?.id ?? "closed")}
+        project={editing}
+        onClose={() => setEditing(null)}
+      />
     </div>
   );
 }
@@ -327,132 +340,7 @@ export function ProfileTab() {
   );
 }
 
-/* ---- C5 Writing ----------------------------------------------------------- */
-export function WritingTab() {
-  const posts = usePosts();
-  const [editing, setEditing] = useState<string | "new" | null>(null);
-  const post = editing && editing !== "new" ? posts.find((p) => p.id === editing) : null;
-  const [draft, setDraft] = useState({ title: "", dek: "", topic: "Architecture", readMinutes: 5 });
-
-  function openNew() {
-    setDraft({ title: "", dek: "", topic: "Architecture", readMinutes: 5 });
-    setEditing("new");
-  }
-
-  return (
-    <div>
-      <TabHead
-        title="Writing"
-        sub={`${posts.length} posts`}
-        action={<CmsButton onClick={openNew}>+ New post</CmsButton>}
-      />
-      <div className="border border-[var(--line)]">
-        <div className="mono hidden grid-cols-[1fr_120px_92px_120px] gap-4 border-b border-[var(--line)] bg-s1 px-6 py-3 text-[9.5px] uppercase tracking-[0.14em] text-[var(--t-muted)] md:grid">
-          <span>Title</span>
-          <span>Topic</span>
-          <span>Status</span>
-          <span className="text-right">Actions</span>
-        </div>
-        {posts.map((p) => (
-          <div
-            key={p.id}
-            className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--line)] px-6 py-4 md:grid-cols-[1fr_120px_92px_120px]"
-          >
-            <div>
-              <div className="text-[14px] font-medium text-white">{p.title}</div>
-              <div className="text-[12.5px] text-[var(--t-muted)]">{p.dek}</div>
-            </div>
-            <span className="mono hidden text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)] md:block">
-              {p.topic}
-            </span>
-            <span className="hidden md:block">
-              <StatusPill published={p.published} onClick={() => togglePostPublished(p.id)} />
-            </span>
-            <span className="mono flex items-center justify-end gap-3 text-[10px] uppercase tracking-[0.14em]">
-              <button className="text-[var(--t-muted)] hover:text-white" onClick={() => setEditing(p.id)}>
-                Edit
-              </button>
-              <button
-                className="text-[var(--t-muted)] hover:text-danger"
-                onClick={() => {
-                  if (confirm(`Delete “${p.title}”?`)) {
-                    deletePost(p.id);
-                    toast("Post deleted");
-                  }
-                }}
-              >
-                Del
-              </button>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {editing && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setEditing(null)} />
-          <div
-            className="relative flex h-full w-full max-w-[560px] flex-col border-l border-[var(--line-box)] bg-s1"
-            style={{ boxShadow: "-40px 0 80px rgba(0,0,0,.5)" }}
-          >
-            <div className="flex items-center justify-between border-b border-[var(--line)] px-6 py-5">
-              <h2 className="text-[21px] font-bold tracking-[-0.03em] text-white">
-                {editing === "new" ? "New post" : "Edit post"}
-              </h2>
-              <button onClick={() => setEditing(null)} className="mono text-[13px] text-[var(--t-muted)] hover:text-white">
-                ✕
-              </button>
-            </div>
-            <div className="scroll-thin flex-1 space-y-5 overflow-y-auto p-6">
-              <Field label="Title">
-                <Input
-                  defaultValue={post?.title ?? draft.title}
-                  onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-                />
-              </Field>
-              <Field label="Dek">
-                <Textarea
-                  rows={2}
-                  defaultValue={post?.dek ?? draft.dek}
-                  onChange={(e) => setDraft((d) => ({ ...d, dek: e.target.value }))}
-                />
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Topic">
-                  <Input
-                    defaultValue={post?.topic ?? draft.topic}
-                    onChange={(e) => setDraft((d) => ({ ...d, topic: e.target.value }))}
-                  />
-                </Field>
-                <Field label="Read minutes">
-                  <Input
-                    type="number"
-                    defaultValue={post?.readMinutes ?? draft.readMinutes}
-                    onChange={(e) => setDraft((d) => ({ ...d, readMinutes: Number(e.target.value) }))}
-                  />
-                </Field>
-              </div>
-            </div>
-            <div className="flex items-center justify-end gap-3 border-t border-[var(--line)] px-6 py-4">
-              <CmsButton variant="ghost" onClick={() => setEditing(null)}>
-                Cancel
-              </CmsButton>
-              <CmsButton
-                onClick={() => {
-                  savePost({ id: post?.id, ...draft, published: post?.published ?? false });
-                  toast(editing === "new" ? "Post created" : "Post saved");
-                  setEditing(null);
-                }}
-              >
-                Save
-              </CmsButton>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+/* ---- C5 (placeholder — Journey tab lives in components/cms/JourneyTab.tsx) - */
 
 /* ---- C6 CV & Files -------------------------------------------------------- */
 export function CvTab() {

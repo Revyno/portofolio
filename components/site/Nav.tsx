@@ -7,7 +7,7 @@ const ITEMS = [
   { href: "/", label: "Home" },
   { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
-  { href: "/writing", label: "Writing" },
+  { href: "/journey", label: "Journey" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -22,7 +22,7 @@ export function Nav() {
     <header className="sticky top-0 z-40 hidden border-b border-[var(--line)] bg-s0/90 backdrop-blur md:block">
       <nav className="mx-auto flex h-[70px] max-w-[1440px] items-center justify-between px-[72px]">
         <Link href="/" className="mono text-[13px] font-medium tracking-[0.14em] text-white">
-          REVELLIO<span className="text-accent">.</span>
+          Revellio
         </Link>
         <ul className="mono flex items-center gap-9 text-[11px] font-medium uppercase tracking-[0.14em]">
           {ITEMS.map((it) => {
@@ -72,7 +72,7 @@ export function MobileTabBar() {
           <Link
             key={it.href}
             href={it.href}
-            className={`mono flex min-h-[52px] flex-col items-center justify-center gap-1 border-t-2 text-[9.5px] uppercase tracking-[0.14em] ${
+            className={`mono flex min-h-[52px] flex-col items-center justify-center gap-1 border-t-2 px-1 py-[14px] text-[9.5px] uppercase tracking-[0.14em] ${
               active ? "border-accent text-white" : "border-transparent text-[var(--t-muted)]"
             }`}
           >

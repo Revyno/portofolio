@@ -140,24 +140,3 @@ export function SkillBar({ name, level, note }: { name: string; level: number; n
     </div>
   );
 }
-
-export function Heatmap({ grid }: { grid: number[][] }) {
-  const shade = ["rgba(255,255,255,0.06)", "var(--accent-28)", "var(--accent-60)", "var(--accent)"];
-  const cols = grid[0]?.length ?? 0;
-  return (
-    <div
-      className="grid w-max gap-[3px]"
-      style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridAutoFlow: "column", gridTemplateRows: "repeat(7, 1fr)" }}
-    >
-      {grid.map((row, r) =>
-        row.map((v, c) => (
-          <div
-            key={`${r}-${c}`}
-            className="h-[7px] w-[7px] md:h-[11px] md:w-[11px]"
-            style={{ background: shade[v] }}
-          />
-        )),
-      )}
-    </div>
-  );
-}

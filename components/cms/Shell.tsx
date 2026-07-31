@@ -10,7 +10,8 @@ export type TabId =
   | "projects"
   | "media"
   | "profile"
-  | "writing"
+  | "journey"
+  | "certificate"
   | "cv"
   | "settings";
 
@@ -19,7 +20,8 @@ const NAV: { id: TabId; label: string }[] = [
   { id: "projects", label: "Projects" },
   { id: "media", label: "Media" },
   { id: "profile", label: "Profile" },
-  { id: "writing", label: "Writing" },
+  { id: "journey", label: "Journey" },
+  { id: "certificate", label: "Certificate" },
   { id: "cv", label: "CV & Files" },
   { id: "settings", label: "Settings" },
 ];
@@ -33,7 +35,8 @@ function Sidebar({ tab, setTab }: { tab: TabId; setTab: (t: TabId) => void }) {
     projects: String(projects.length),
     media: String(media.length),
     profile: "",
-    writing: "",
+    journey: "",
+    certificate: "",
     cv: String(cv.length),
     settings: "",
   };

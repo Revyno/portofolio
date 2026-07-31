@@ -14,6 +14,8 @@ create table if not exists projects (
   year        text not null default '',
   published   boolean not null default false,
   cover_url   text,
+  live_url    text,
+  repo_url    text,
   updated_at  timestamptz not null default now()
 );
 
@@ -25,17 +27,28 @@ create table if not exists project_media (
   sort_index  int not null default 0
 );
 
-create table if not exists posts (
-  id           uuid primary key default gen_random_uuid(),
-  slug         text unique not null,
-  title        text not null,
-  dek          text default '',
-  topic        text default '',
-  body_md      text default '',
-  read_minutes int default 3,
-  published    boolean not null default false,
-  published_at date
+create table if not exists journey (
+  id         uuid primary key default gen_random_uuid(),
+  date       date not null,
+  title      text not null,
+  org        text not null default '',
+  note       text not null default '',
+  published  boolean not null default false
 );
+
+create table if not exists certificates (
+  id         uuid primary key default gen_random_uuid(),
+  sort_index int not null default 0,
+  year       text not null default '',
+  title      text not null,
+  venue      text not null default '',
+  cover_url  text,
+  link_url   text,
+  published  boolean not null default false
+);
+-- migration for existing installs
+alter table certificates add column if not exists cover_url text;
+alter table certificates add column if not exists link_url text;
 
 create table if not exists cv_versions (
   id          uuid primary key default gen_random_uuid(),

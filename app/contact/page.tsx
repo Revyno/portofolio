@@ -6,7 +6,7 @@ import { Shell, Section, Eyebrow, MetaStrip, Button } from "@/components/site/pr
 import { useProfile } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { Toaster } from "@/components/cms/Toaster";
-import { SplitReveal, Reveal } from "@/components/site/motion";
+import { Reveal, LineReveal } from "@/components/site/motion";
 
 export default function ContactPage() {
   const profile = useProfile();
@@ -28,13 +28,13 @@ export default function ContactPage() {
       <div className="relative overflow-hidden">
         <DiagonalBreak side="left" />
         <Shell>
-          <Section border={false} className="pt-12 md:pt-20">
+          <Section border={false} className="pt-10 md:pt-20">
             <Eyebrow>Contact</Eyebrow>
-            <h1 className="text-[46px] font-bold leading-[0.84] tracking-[-0.06em] text-white md:text-[168px]">
+            <LineReveal as="h1" className="text-[46px] font-bold leading-[0.84] tracking-[-0.06em] text-white md:text-[168px]">
               Let’s talk.
-            </h1>
+            </LineReveal>
 
-            <div className="mt-10">
+            <Reveal className="mt-10">
               <MetaStrip
                 items={[
                   { label: "Email", value: profile.email, accent: true },
@@ -43,13 +43,14 @@ export default function ContactPage() {
                   { label: "Location", value: profile.location },
                 ]}
               />
-            </div>
+            </Reveal>
           </Section>
         </Shell>
       </div>
 
       <Shell>
         <Section>
+          <Reveal>
           <div className="grid gap-12 md:grid-cols-12 md:gap-6">
             <form onSubmit={submit} className="space-y-4 md:col-span-7">
               <div>
@@ -91,6 +92,7 @@ export default function ContactPage() {
               )}
             </div>
           </div>
+          </Reveal>
         </Section>
       </Shell>
     </PageChrome>

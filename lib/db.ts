@@ -3,7 +3,8 @@ import { neon } from "@neondatabase/serverless";
 import type {
   Store,
   Project,
-  Post,
+  Journey,
+  Certificate,
   Profile,
   CvVersion,
   MediaItem,
@@ -35,19 +36,31 @@ function toProject(r: any, media: MediaItem[]): Project {
     year: r.year ?? "",
     published: r.published,
     coverUrl: r.cover_url ?? null,
+    liveUrl: r.live_url ?? null,
+    repoUrl: r.repo_url ?? null,
     media,
     updatedAt: new Date(r.updated_at).toISOString(),
   };
 }
-function toPost(r: any): Post {
+function toJourney(r: any): Journey {
   return {
     id: r.id,
-    slug: r.slug,
+    date: r.date ? String(r.date).slice(0, 10) : "",
     title: r.title,
-    dek: r.dek ?? "",
-    topic: r.topic ?? "",
-    readMinutes: r.read_minutes ?? 3,
-    publishedAt: r.published_at ? String(r.published_at).slice(0, 10) : "",
+    org: r.org ?? "",
+    note: r.note ?? "",
+    published: r.published,
+  };
+}
+function toCertificate(r: any): Certificate {
+  return {
+    id: r.id,
+    sortIndex: r.sort_index ?? 0,
+    year: r.year ?? "",
+    title: r.title,
+    venue: r.venue ?? "",
+    coverUrl: r.cover_url ?? null,
+    linkUrl: r.link_url ?? null,
     published: r.published,
   };
 }
@@ -94,16 +107,18 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getStore(): Promise<Store> {
-  const [projects, posts, cv, media, profileRows] = await Promise.all([
+  const [projects, journey, certificates, cv, media, profileRows] = await Promise.all([
     getProjects(),
-    sql`select * from posts order by published_at desc nulls last`,
+    sql`select * from journey order by date desc`,
+    sql`select * from certificates order by sort_index`,
     sql`select * from cv_versions order by version desc`,
     sql`select * from media order by created_at desc`,
     sql`select * from profile where id = 1`,
   ]);
   return {
     projects,
-    posts: (posts as any[]).map(toPost),
+    journey: (journey as any[]).map(toJourney),
+    certificates: (certificates as any[]).map(toCertificate),
     cvVersions: (cv as any[]).map(toCv),
     media: (media as any[]).map((m: any) => ({ id: m.id, url: m.url, caption: m.caption ?? "" })),
     profile: toProfile((profileRows as any[])[0]),
@@ -127,11 +142,11 @@ export async function createProject(input: Partial<Project>): Promise<Project[]>
   const slug = await uniqueSlug(slugify(name));
   const next = await sql`select coalesce(max(sort_index)+1, 0) as n from projects`;
   await sql`insert into projects
-    (sort_index,slug,name,tag,description,stack,metric,year,published,cover_url)
+    (sort_index,slug,name,tag,description,stack,metric,year,published,cover_url,live_url,repo_url)
     values (${(next as any)[0].n},${slug},${name},${input.tag ?? "Web App"},
             ${input.description ?? ""},${input.stack ?? ""},${input.metric ?? ""},
             ${input.year ?? String(new Date().getFullYear())},${input.published ?? false},
-            ${input.coverUrl ?? null})`;
+            ${input.coverUrl ?? null},${input.liveUrl ?? null},${input.repoUrl ?? null})`;
   await reindexProjects();
   return getProjects();
 }
@@ -144,6 +159,7 @@ export async function updateProject(id: string, input: Partial<Project>): Promis
     description=${input.description ?? ""}, stack=${input.stack ?? ""},
     metric=${input.metric ?? ""}, year=${input.year ?? ""},
     published=${input.published ?? false}, cover_url=${input.coverUrl ?? null},
+    live_url=${input.liveUrl ?? null}, repo_url=${input.repoUrl ?? null},
     updated_at=now()
     where id=${id}`;
   await reindexProjects();
@@ -198,30 +214,51 @@ export async function updateProfile(patch: Partial<Profile>): Promise<Profile> {
   return p;
 }
 
-// --- posts -----------------------------------------------------------------
-export async function savePost(input: Partial<Post> & { id?: string }): Promise<Post[]> {
-  const title = (input.title ?? "").trim() || "Untitled post";
-  const slug = slugify(title);
+// --- journey ---------------------------------------------------------------
+export async function saveJourney(input: Partial<Journey> & { id?: string }): Promise<Journey[]> {
+  const title = (input.title ?? "").trim() || "Untitled milestone";
   if (input.id) {
-    await sql`update posts set title=${title}, slug=${slug}, dek=${input.dek ?? ""},
-      topic=${input.topic ?? ""}, read_minutes=${input.readMinutes ?? 3},
-      published=${input.published ?? false},
-      published_at=${input.publishedAt || null} where id=${input.id}`;
+    await sql`update journey set title=${title}, date=${input.date || null},
+      org=${input.org ?? ""}, note=${input.note ?? ""},
+      published=${input.published ?? false} where id=${input.id}`;
   } else {
-    await sql`insert into posts (slug,title,dek,topic,read_minutes,published,published_at)
-      values (${slug},${title},${input.dek ?? ""},${input.topic ?? ""},
-              ${input.readMinutes ?? 3},${input.published ?? false},
-              ${input.publishedAt || null})`;
+    await sql`insert into journey (date,title,org,note,published)
+      values (${input.date || null},${title},${input.org ?? ""},
+              ${input.note ?? ""},${input.published ?? false})`;
   }
-  return (await sql`select * from posts order by published_at desc nulls last`).map(toPost as any);
+  return (await sql`select * from journey order by date desc`).map(toJourney as any);
 }
-export async function deletePost(id: string): Promise<Post[]> {
-  await sql`delete from posts where id=${id}`;
-  return (await sql`select * from posts order by published_at desc nulls last`).map(toPost as any);
+export async function deleteJourney(id: string): Promise<Journey[]> {
+  await sql`delete from journey where id=${id}`;
+  return (await sql`select * from journey order by date desc`).map(toJourney as any);
 }
-export async function togglePostPublished(id: string): Promise<Post[]> {
-  await sql`update posts set published = not published where id=${id}`;
-  return (await sql`select * from posts order by published_at desc nulls last`).map(toPost as any);
+export async function toggleJourneyPublished(id: string): Promise<Journey[]> {
+  await sql`update journey set published = not published where id=${id}`;
+  return (await sql`select * from journey order by date desc`).map(toJourney as any);
+}
+
+// --- certificates ----------------------------------------------------------
+export async function saveCertificate(input: Partial<Certificate> & { id?: string }): Promise<Certificate[]> {
+  const title = (input.title ?? "").trim() || "Untitled certificate";
+  if (input.id) {
+    await sql`update certificates set title=${title}, year=${input.year ?? ""},
+      venue=${input.venue ?? ""}, cover_url=${input.coverUrl ?? null}, link_url=${input.linkUrl ?? null},
+      published=${input.published ?? false} where id=${input.id}`;
+  } else {
+    const next = (await sql`select coalesce(max(sort_index)+1,0) as n from certificates`) as any[];
+    await sql`insert into certificates (sort_index,year,title,venue,cover_url,link_url,published)
+      values (${next[0].n},${input.year ?? ""},${title},${input.venue ?? ""},
+              ${input.coverUrl ?? null},${input.linkUrl ?? null},${input.published ?? false})`;
+  }
+  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
+}
+export async function deleteCertificate(id: string): Promise<Certificate[]> {
+  await sql`delete from certificates where id=${id}`;
+  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
+}
+export async function toggleCertificatePublished(id: string): Promise<Certificate[]> {
+  await sql`update certificates set published = not published where id=${id}`;
+  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
 }
 
 // --- media -----------------------------------------------------------------
@@ -258,7 +295,7 @@ export async function unpublishAll(): Promise<Project[]> {
 }
 
 export async function resetToSeed(): Promise<Store> {
-  await sql`truncate project_media, media, projects, posts, cv_versions restart identity cascade`;
+  await sql`truncate project_media, media, projects, journey, certificates, cv_versions restart identity cascade`;
   await sql`delete from profile`;
   const p = seed.profile;
   await sql`insert into profile (id,name,role,location,bio,email,github,linkedin,hero_url,photo_url,available,cv_visible)
@@ -274,9 +311,12 @@ export async function resetToSeed(): Promise<Store> {
     }
   }
   for (const m of seed.media) await sql`insert into media (url,caption) values (${m.url},${m.caption})`;
-  for (const post of seed.posts)
-    await sql`insert into posts (slug,title,dek,topic,read_minutes,published,published_at)
-      values (${post.slug},${post.title},${post.dek},${post.topic},${post.readMinutes},${post.published},${post.publishedAt})`;
+  for (const j of seed.journey)
+    await sql`insert into journey (date,title,org,note,published)
+      values (${j.date},${j.title},${j.org},${j.note},${j.published})`;
+  for (const c of seed.certificates)
+    await sql`insert into certificates (sort_index,year,title,venue,cover_url,link_url,published)
+      values (${c.sortIndex},${c.year},${c.title},${c.venue},${c.coverUrl},${c.linkUrl},${c.published})`;
   for (const v of seed.cvVersions)
     await sql`insert into cv_versions (version,name,size_bytes,is_live,uploaded_at)
       values (${v.version},${v.name},${v.sizeBytes},${v.isLive},${v.uploadedAt})`;

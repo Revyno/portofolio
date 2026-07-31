@@ -5,7 +5,7 @@ import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, Button, MetaStrip } from "@/components/site/primitives";
 import { ProjectRow } from "@/components/site/ProjectRow";
 import { Terminal } from "@/components/site/Terminal";
-import { SplitReveal, Reveal, Parallax } from "@/components/site/motion";
+import { SplitReveal, Reveal, Parallax, LineReveal } from "@/components/site/motion";
 import { useProjects, useProfile, publicProjects } from "@/lib/store";
 import { principles } from "@/lib/data";
 
@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         <DiagonalBreak side="right" />
-        <Shell className="hero-rule pt-16 md:pt-24" >
+        <Shell className="hero-rule pt-10 md:pt-24" >
           <div className="grid gap-10 md:grid-cols-12 md:gap-6">
             <div className="md:col-span-9">
               <Eyebrow>{profile.role} · {profile.location}</Eyebrow>
@@ -26,7 +26,7 @@ export default function HomePage() {
                 as="h1"
                 className="text-[46px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[150px] md:leading-[0.86] md:tracking-[-0.055em]"
               >
-                Content ships from a browser, not a commit.
+                Welcome To My Portfolio
               </SplitReveal>
             </div>
             <div className="flex flex-col gap-6 md:col-span-3">
@@ -65,9 +65,9 @@ export default function HomePage() {
           <div className="mb-8 flex items-end justify-between">
             <div>
               <Eyebrow>Selected work</Eyebrow>
-              <h2 className="text-[32px] font-bold tracking-[-0.04em] text-white md:text-[54px]">
+              <LineReveal as="h2" className="text-[32px] font-bold tracking-[-0.04em] text-white md:text-[54px]">
                 Three that carry the argument.
-              </h2>
+              </LineReveal>
             </div>
             <Button href="/work" variant="ghost" className="hidden md:inline-flex">
               All work →
@@ -112,11 +112,11 @@ export default function HomePage() {
           <Eyebrow>Publish flow</Eyebrow>
           <div className="grid gap-10 md:grid-cols-12 md:gap-6">
             <div className="md:col-span-5">
-              <h2 className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
+              <LineReveal as="h2" className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
                 Just Type
-              </h2>
+              </LineReveal>
               <p className="mt-4 text-[15px] text-[var(--t-body)]">
-               Use the cli terminal to change routes for commands, the usage is the same as using linux etc.
+                Use the cli terminal to change routes for commands, the usage is the same as using linux etc.
               </p>
             </div>
             <div className="md:col-span-7">

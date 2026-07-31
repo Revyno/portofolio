@@ -53,6 +53,64 @@ export function SplitReveal({
   );
 }
 
+/**
+ * Line-mask reveal: splits text into lines, each wrapped in an
+ * overflow:hidden mask, then rises each line from below on scroll-into-view.
+ * Use for headlines, intros, or any block that should "type-rise" in.
+ */
+export function LineReveal({
+  children,
+  as: Tag = "div",
+  className = "",
+  delay = 0,
+  stagger = 0.08,
+  duration = 0.9,
+  start = "top 85%",
+}: {
+  children: string;
+  as?: ElementType;
+  className?: string;
+  delay?: number;
+  stagger?: number;
+  duration?: number;
+  start?: string;
+}) {
+  const ref = useRef<HTMLElement>(null);
+
+  useGSAP(() => {
+    const el = ref.current;
+    if (!el || reduced()) return;
+    const split = new SplitText(el, { type: "lines", linesClass: "lr-line" });
+    // wrap each line in a mask div so the clip is per-line
+    split.lines.forEach((line) => {
+      const mask = document.createElement("div");
+      mask.className = "lr-mask";
+      line.parentNode?.insertBefore(mask, line);
+      mask.appendChild(line);
+    });
+    gsap.set(el, { opacity: 1 });
+    gsap.from(split.lines, {
+      yPercent: 115,
+      duration,
+      ease: "expo.out",
+      stagger,
+      delay,
+      scrollTrigger: { trigger: el, start, once: true },
+    });
+    return () => split.revert();
+  }, [children]);
+
+  return (
+    <Tag
+      ref={ref}
+      className={className}
+      style={{ opacity: reduced() ? 1 : 0 }}
+    >
+      {children}
+    </Tag>
+  );
+}
+
 /** Fade-up a block when it scrolls into view. */
 export function Reveal({
   children,

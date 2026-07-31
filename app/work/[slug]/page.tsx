@@ -67,6 +67,31 @@ export default function CaseStudyPage() {
               ]}
             />
           </div>
+
+          {(project.liveUrl || project.repoUrl) && (
+            <div className="mt-8 flex flex-wrap gap-3">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mono bg-accent px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-[#0b0b0b] transition-colors hover:bg-white"
+                >
+                  Live site ↗
+                </a>
+              )}
+              {project.repoUrl && (
+                <a
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="mono border border-[var(--line-box)] px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:border-accent hover:text-accent"
+                >
+                  Source ↗
+                </a>
+              )}
+            </div>
+          )}
         </Section>
       </Shell>
 

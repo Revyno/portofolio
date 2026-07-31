@@ -26,19 +26,30 @@ export type Project = {
   year: string;
   published: boolean;
   coverUrl: string | null;
+  liveUrl: string | null;
+  repoUrl: string | null;
   media: { id: string; url: string; caption: string }[];
   updatedAt: string;
 };
 
-export type Post = {
+export type Journey = {
   id: string;
-  slug: string;
+  date: string; // ISO date (YYYY-MM-DD) — timeline anchor
   title: string;
-  dek: string;
-  topic: string;
-  readMinutes: number;
-  publishedAt: string; // ISO date
+  org: string;
+  note: string;
   published: boolean;
+};
+
+export type Certificate = {
+  id: string;
+  year: string;
+  title: string;
+  venue: string;
+  coverUrl: string | null; // uploaded image (data URL or blob URL)
+  linkUrl: string | null; // GDrive/external link to view the full certificate
+  published: boolean;
+  sortIndex: number;
 };
 
 export type CvVersion = {
@@ -68,7 +79,8 @@ export type MediaItem = { id: string; url: string; caption: string };
 
 export type Store = {
   projects: Project[];
-  posts: Post[];
+  journey: Journey[];
+  certificates: Certificate[];
   cvVersions: CvVersion[];
   profile: Profile;
   media: MediaItem[];
@@ -124,28 +136,6 @@ export const skills = [
   { name: "Three.js / GSAP", level: 0.6, note: "scroll scenes" },
 ];
 
-export const talks = [
-  { year: "2026", title: "Self-hosting a CMS without a CMS", venue: "JS Meetup ID" },
-  { year: "2025", title: "ISR in anger: DB content, no spinners", venue: "Next Conf lightning" },
-];
-
-/** contribution heatmap: 7 rows (days) × weeks, level 0–3 */
-export const heatmap: number[][] = (() => {
-  const rows = 7;
-  const cols = 20;
-  const grid: number[][] = [];
-  for (let r = 0; r < rows; r++) {
-    const line: number[] = [];
-    for (let c = 0; c < cols; c++) {
-      // deterministic pseudo-pattern (no Math.random in module scope)
-      const v = (r * 7 + c * 3) % 11;
-      line.push(v > 8 ? 3 : v > 6 ? 2 : v > 3 ? 1 : 0);
-    }
-    grid.push(line);
-  }
-  return grid;
-})();
-
 // --- seed ------------------------------------------------------------------
 function proj(
   i: number,
@@ -170,6 +160,8 @@ function proj(
     year,
     published,
     coverUrl: cover,
+    liveUrl: null,
+    repoUrl: null,
     media: [],
     updatedAt: "2026-07-20T10:00:00.000Z",
   };
@@ -203,12 +195,16 @@ export const seed: Store = {
     proj(10, "Stripe Flow", "Web App", "Checkout flow spike — abandoned-cart recovery experiments.", "Next.js · Stripe", "+18% recovery", "2023", false, "/assets/newsign.png"),
     proj(11, "First Portfolio", "Web App", "The site before this one. Kept as a marker of how far the bar moved.", "HTML · CSS · JS", "shipped, then outgrown", "2022", false, "/assets/P5_Joker_Chain_Chronicle_1.png"),
   ],
-  posts: [
-    { id: "post-0", slug: "cms-without-a-cms", title: "A CMS without a CMS", dek: "Why I built the content layer instead of installing one, and what it cost.", topic: "Architecture", readMinutes: 8, publishedAt: "2026-06-14", published: true },
-    { id: "post-1", slug: "isr-in-anger", title: "ISR in anger", dek: "Serving DB content with zero loading spinners, and the 60-second contract.", topic: "Next.js", readMinutes: 6, publishedAt: "2026-04-02", published: true },
-    { id: "post-2", slug: "hairlines-not-shadows", title: "Hairlines, not shadows", dek: "A dark UI that separates layers with 1px lines and opacity — no elevation.", topic: "Design", readMinutes: 5, publishedAt: "2026-02-19", published: true },
-    { id: "post-3", slug: "budgeting-three-js", title: "Budgeting Three.js by the byte", dek: "Keeping a 3D case study under a 220kB first-load budget, checked in CI.", topic: "Performance", readMinutes: 7, publishedAt: "2025-11-30", published: true },
-    { id: "post-4", slug: "draft-untitled", title: "Untitled draft", dek: "Not ready yet.", topic: "Misc", readMinutes: 2, publishedAt: "2026-07-01", published: false },
+  journey: [
+    { id: "jrny-0", date: "2026-01-01", title: "Full-stack Developer", org: "Independent", note: "Product-grade web apps, self-hosted CMS, and 3D case studies.", published: true },
+    { id: "jrny-1", date: "2024-06-01", title: "Frontend Engineer", org: "Kanvas Studio", note: "Design-system work; shipped a real-time configurator on R3F.", published: true },
+    { id: "jrny-2", date: "2023-03-01", title: "Junior Developer", org: "Loop Labs", note: "Internal tools on Next.js + Postgres; stood up the first CI pipelines.", published: true },
+    { id: "jrny-3", date: "2022-01-01", title: "Started building for the web", org: "Self-taught", note: "HTML/CSS/JS, then React. Never stopped.", published: true },
+    { id: "jrny-4", date: "2026-07-01", title: "Draft milestone", org: "—", note: "Not ready yet.", published: false },
+  ],
+  certificates: [
+    { id: "cert-0", sortIndex: 0, year: "2026", title: "Self-hosting a CMS without a CMS", venue: "JS Meetup ID", coverUrl: null, linkUrl: null, published: true },
+    { id: "cert-1", sortIndex: 1, year: "2025", title: "ISR in anger: DB content, no spinners", venue: "Next Conf lightning", coverUrl: null, linkUrl: null, published: true },
   ],
   cvVersions: [
     { id: "cv-3", version: 3, name: "revellio-cv-2026-07.pdf", sizeBytes: 214_000, isLive: true, uploadedAt: "2026-07-18T09:00:00.000Z" },

@@ -8,10 +8,11 @@ import {
   ProjectsTab,
   MediaTab,
   ProfileTab,
-  WritingTab,
   CvTab,
   SettingsTab,
 } from "@/components/cms/tabs";
+import { JourneyTab } from "@/components/cms/JourneyTab";
+import { CertificateTab } from "@/components/cms/CertificateTab";
 
 export default function CmsPage() {
   const [tab, setTab] = useState<TabId>("overview");
@@ -22,7 +23,8 @@ export default function CmsPage() {
         {tab === "projects" && <ProjectsTab />}
         {tab === "media" && <MediaTab />}
         {tab === "profile" && <ProfileTab />}
-        {tab === "writing" && <WritingTab />}
+        {tab === "journey" && <JourneyTab />}
+        {tab === "certificate" && <CertificateTab />}
         {tab === "cv" && <CvTab />}
         {tab === "settings" && <SettingsTab />}
       </CmsShell>
