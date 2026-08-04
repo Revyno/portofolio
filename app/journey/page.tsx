@@ -57,7 +57,7 @@ export default function JourneyPage() {
                     {/* content */}
                     <div className="border-b border-[var(--line)] pb-8 md:pb-12">
                       <div className="mono text-[11px] uppercase tracking-[0.14em] text-accent">
-                        {fmt(s.date)}
+                        {fmt(s.date)} — {s.ongoing ? "Present" : s.endDate ? fmt(s.endDate) : ""}
                       </div>
                       <h2 className="mt-2 text-[18px] font-bold leading-[1.1] tracking-[-0.03em] text-white md:text-[30px]">
                         {s.title}

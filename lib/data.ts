@@ -34,7 +34,9 @@ export type Project = {
 
 export type Journey = {
   id: string;
-  date: string; // ISO date (YYYY-MM-DD) — timeline anchor
+  date: string; // ISO date (YYYY-MM-DD) — start
+  endDate: string; // ISO date, "" if ongoing/unset
+  ongoing: boolean; // true = show "Present" instead of endDate
   title: string;
   org: string;
   note: string;
@@ -56,6 +58,7 @@ export type CvVersion = {
   id: string;
   version: number;
   name: string;
+  url: string | null;
   sizeBytes: number;
   isLive: boolean;
   uploadedAt: string;
@@ -224,8 +227,8 @@ export const seed: Store = {
 
 /** derived: principles shown on Home */
 export const principles: { n: string; title: string; body: string }[] = [
-  // { n: "01", title: "Ship the smallest thing that works", body: "The best code is the code never written. One line beats an abstraction with one caller." },
-  // { n: "02", title: "Separate with lines, not space", body: "A hairline carries the same meaning as a shadow, at 1px and zero elevation." },
-  // { n: "03", title: "Numbers carry context", body: "“Fast” means nothing. “p99 2.8s → 86ms” means something." },
-  // { n: "04", title: "Honest caveats over clean claims", body: "Every metric ships with the case where it doesn’t hold. Trust compounds." },
+  { n: "01", title: "Ship the smallest thing that works", body: "The best code is the code never written. One line beats an abstraction with one caller." },
+  { n: "02", title: "Separate with lines, not space", body: "A hairline carries the same meaning as a shadow, at 1px and zero elevation." },
+  { n: "03", title: "Numbers carry context", body: "“Fast” means nothing. “p99 2.8s → 86ms” means something." },
+  { n: "04", title: "Honest caveats over clean claims", body: "Every metric ships with the case where it doesn’t hold. Trust compounds." },
 ];

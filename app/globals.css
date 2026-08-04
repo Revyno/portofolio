@@ -59,6 +59,11 @@
   box-sizing: border-box;
 }
 
+/* pill — the one sanctioned radius: buttons only. Wins over the * reset. */
+.pill {
+  border-radius: 9999px !important;
+}
+
 html {
   background: var(--canvas);
   color-scheme: dark;

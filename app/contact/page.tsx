@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, MetaStrip, Button } from "@/components/site/primitives";
-import { useProfile } from "@/lib/store";
+import { useProfile, useCvVersions } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { Toaster } from "@/components/cms/Toaster";
 import { Reveal, LineReveal } from "@/components/site/motion";
 
 export default function ContactPage() {
   const profile = useProfile();
+  const liveCv = useCvVersions().find((v) => v.isLive);
   const [sent, setSent] = useState(false);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -39,7 +40,7 @@ export default function ContactPage() {
                 items={[
                   { label: "Email", value: profile.email, accent: true },
                   { label: "GitHub", value: `${profile.github}`, accent: true },
-                  { label: "LinkedIn", value: `${profile.linkedin}`, accent: true },
+                  { label: "LinkedIn", value: profile.linkedin.replace(/^https?:\/\//, ""), href: profile.linkedin.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`, accent: true },
                   { label: "Location", value: profile.location },
                 ]}
               />
@@ -85,8 +86,8 @@ export default function ContactPage() {
                   </li>
                 ))}
               </ul>
-              {profile.cvVisible && (
-                <Button href="#" variant="ghost" className="mt-8">
+              {profile.cvVisible && liveCv?.url && (
+                <Button href={liveCv.url} variant="ghost" className="mt-8">
                   Download CV ↓
                 </Button>
               )}

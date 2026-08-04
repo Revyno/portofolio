@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
         return Response.json({ error: `unknown action: ${action}` }, { status: 400 });
     }
   } catch (e) {
-    return Response.json({ error: (e as Error).message }, { status: 500 });
+    console.error("[api/mutate]", action, e);
+    return Response.json({ error: (e as Error).message, stack: (e as Error).stack }, { status: 500 });
   }
 }

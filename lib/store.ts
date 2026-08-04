@@ -67,6 +67,10 @@ async function mutate(action: string, args: Record<string, unknown> = {}) {
     if (res.ok) {
       const slice = (await res.json()) as Partial<Store>;
       patch(slice);
+    } else {
+      // server rejected the mutation: roll back optimistic state
+      hydrated = false;
+      hydrate();
     }
   } catch {
     // network failed: re-pull authoritative state
@@ -191,16 +195,19 @@ export function saveJourney(input: Partial<Journey> & { id?: string }): Journey 
     void mutate("saveJourney", { ...input, id: existing.id });
     return updated;
   }
+  const today = new Date().toISOString().slice(0, 10);
   const created: Journey = {
     id: tmpId("jrny"),
-    date: input.date ?? new Date().toISOString().slice(0, 10),
+    date: input.date || today,
+    endDate: input.ongoing ? "" : (input.endDate || ""),
+    ongoing: input.ongoing ?? false,
     title,
     org: input.org ?? "",
     note: input.note ?? "",
     published: input.published ?? false,
   };
   patch({ journey: [created, ...state.journey] });
-  void mutate("saveJourney", input);
+  void mutate("saveJourney", { ...input, date: created.date, endDate: created.endDate });
   return created;
 }
 export function deleteJourney(id: string) {
@@ -258,18 +265,19 @@ export function deleteMedia(id: string) {
 }
 
 // --- cv --------------------------------------------------------------------
-export function addCvVersion(name: string, sizeBytes: number): CvVersion {
+export function addCvVersion(name: string, sizeBytes: number, url: string | null = null): CvVersion {
   const version = Math.max(0, ...state.cvVersions.map((v) => v.version)) + 1;
   const created: CvVersion = {
     id: tmpId("cv"),
     version,
     name,
+    url,
     sizeBytes,
     isLive: true,
     uploadedAt: new Date().toISOString(),
   };
   patch({ cvVersions: [created, ...state.cvVersions.map((v) => ({ ...v, isLive: false }))] });
-  void mutate("addCvVersion", { name, sizeBytes });
+  void mutate("addCvVersion", { name, sizeBytes, url });
   return created;
 }
 export function restoreCvVersion(id: string) {

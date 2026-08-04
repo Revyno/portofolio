@@ -6,12 +6,13 @@ import { Shell, Section, Eyebrow, Button, MetaStrip } from "@/components/site/pr
 import { ProjectRow } from "@/components/site/ProjectRow";
 import { Terminal } from "@/components/site/Terminal";
 import { SplitReveal, Reveal, Parallax, LineReveal } from "@/components/site/motion";
-import { useProjects, useProfile, publicProjects } from "@/lib/store";
+import { useProjects, useProfile, useCvVersions, publicProjects } from "@/lib/store";
 import { principles } from "@/lib/data";
 
 export default function HomePage() {
   const profile = useProfile();
   const selected = publicProjects(useProjects()).slice(0, 3);
+  const liveCv = useCvVersions().find((v) => v.isLive);
 
   return (
     <PageChrome>
@@ -38,8 +39,8 @@ export default function HomePage() {
                 )}
               </div>
               <p className="text-[14px] text-[var(--t-body)] md:text-[15px]">{profile.bio}</p>
-              {profile.cvVisible && (
-                <Button href="#cv" className="w-full justify-center md:w-auto md:justify-start">
+              {profile.cvVisible && liveCv?.url && (
+                <Button href={liveCv.url} className="rounded-full  w-full justify-center md:w-auto md:justify-start">
                   Download CV ↓
                 </Button>
               )}

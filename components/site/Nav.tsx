@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "./primitives";
+import { playClick } from "@/lib/sound";
 
 const ITEMS = [
   { href: "/", label: "Home" },
@@ -21,7 +23,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 hidden border-b border-[var(--line)] bg-s0/90 backdrop-blur md:block">
       <nav className="mx-auto flex h-[70px] max-w-[1440px] items-center justify-between px-[72px]">
-        <Link href="/" className="mono text-[13px] font-medium tracking-[0.14em] text-white">
+        <Link href="/" onClick={playClick} className="mono text-[13px] font-medium tracking-[0.14em] text-white">
           Revellio
         </Link>
         <ul className="mono flex items-center gap-9 text-[11px] font-medium uppercase tracking-[0.14em]">
@@ -31,6 +33,7 @@ export function Nav() {
               <li key={it.href}>
                 <Link
                   href={it.href}
+                  onClick={playClick}
                   className={`pb-1 transition-colors ${
                     active
                       ? "border-b-2 border-accent text-white"
@@ -43,16 +46,16 @@ export function Nav() {
             );
           })}
           <li>
-            <Link
+            <Button
               href="/contact"
-              className={`border px-[18px] py-[9px] transition-all ${
+              className={`rounded-full px-[18px] py-[9px] transition-all ${
                 isActive(pathname, "/contact")
                   ? "rounded-full border-accent bg-white text-[#0b0b0b]"
                   : "rounded-md border-white/40 bg-accent text-[#4CE0FF] hover:border-white hover:bg-[#4CE0FF]"
               }`}
             >
               Contact
-            </Link>
+            </Button>
           </li>
         </ul>
       </nav>
@@ -72,6 +75,7 @@ export function MobileTabBar() {
           <Link
             key={it.href}
             href={it.href}
+            onClick={playClick}
             className={`mono flex min-h-[52px] flex-col items-center justify-center gap-1 border-t-2 px-1 py-[14px] text-[9.5px] uppercase tracking-[0.14em] ${
               active ? "border-accent text-white" : "border-transparent text-[var(--t-muted)]"
             }`}

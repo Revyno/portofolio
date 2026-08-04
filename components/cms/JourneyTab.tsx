@@ -23,8 +23,8 @@ import { toast } from "@/lib/toast";
 import type { Journey } from "@/lib/data";
 import { TabHead } from "./Shell";
 
-type Draft = { date: string; title: string; org: string; note: string; published: boolean };
-const EMPTY: Draft = { date: "", title: "", org: "", note: "", published: false };
+type Draft = { date: string; endDate: string; ongoing: boolean; title: string; org: string; note: string; published: boolean };
+const EMPTY: Draft = { date: "", endDate: "", ongoing: false, title: "", org: "", note: "", published: false };
 
 /** CMS Journey tab — Chakra UI, scoped Swiss/dark system (radius 0, accent #4CE0FF). */
 export function JourneyTab() {
@@ -45,7 +45,7 @@ function JourneyInner() {
     setEditing("new");
   }
   function openEdit(j: Journey) {
-    setDraft({ date: j.date, title: j.title, org: j.org, note: j.note, published: j.published });
+    setDraft({ date: j.date, endDate: j.endDate, ongoing: j.ongoing, title: j.title, org: j.org, note: j.note, published: j.published });
     setEditing(j.id);
   }
   function commit() {
@@ -100,7 +100,7 @@ function JourneyInner() {
               <Table.Row key={j.id} bg="s0" _hover={{ bg: "rgba(76,224,255,0.06)" }}>
                 <Td>
                   <Text fontFamily="mono" fontSize="12px" color="muted">
-                    {j.date}
+                    {j.date} → {j.ongoing ? "Present" : j.endDate || "—"}
                   </Text>
                 </Td>
                 <Td>
@@ -174,9 +174,28 @@ function JourneyInner() {
               <Dialog.Body>
                 <Stack gap="4">
                   <Field.Root>
-                    <Lbl>Date</Lbl>
+                    <Lbl>Start date</Lbl>
                     <Fld type="date" value={draft.date} onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))} />
                   </Field.Root>
+                  <Flex align="center" justify="space-between">
+                    <Text fontSize="14px">Ongoing (Present)</Text>
+                    <Switch.Root
+                      checked={draft.ongoing}
+                      onCheckedChange={(e) => setDraft((d) => ({ ...d, ongoing: e.checked }))}
+                      colorPalette="cyan"
+                    >
+                      <Switch.HiddenInput />
+                      <Switch.Control borderRadius="none">
+                        <Switch.Thumb borderRadius="none" />
+                      </Switch.Control>
+                    </Switch.Root>
+                  </Flex>
+                  {!draft.ongoing && (
+                    <Field.Root>
+                      <Lbl>End date</Lbl>
+                      <Fld type="date" value={draft.endDate} onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))} />
+                    </Field.Root>
+                  )}
                   <Field.Root>
                     <Lbl>Title</Lbl>
                     <Fld value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} placeholder="Full-stack Developer" />

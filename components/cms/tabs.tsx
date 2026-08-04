@@ -326,12 +326,15 @@ export function ProfileTab() {
           <Field label="Bio">
             <Textarea rows={4} value={form.bio} onChange={(e) => upd("bio", e.target.value)} />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Email">
               <Input value={form.email} onChange={(e) => upd("email", e.target.value)} />
             </Field>
             <Field label="GitHub">
               <Input value={form.github} onChange={(e) => upd("github", e.target.value)} />
+            </Field>
+            <Field label="LinkedIn">
+              <Input value={form.linkedin} onChange={(e) => upd("linkedin", e.target.value)} placeholder="your-handle" />
             </Field>
           </div>
           <div className="flex items-center justify-between border-t border-[var(--line)] pt-5">
@@ -382,8 +385,8 @@ export function CvTab() {
           <div className="meta-label mb-3">Upload new version</div>
           <Dropzone
             accept="application/pdf"
-            onFile={(_url, file) => {
-              addCvVersion(file.name, file.size);
+            onFile={(url, file) => {
+              addCvVersion(file.name, file.size, url);
               toast("CV uploaded — now live");
             }}
             hint="Drop a PDF"
@@ -398,9 +401,13 @@ export function CvTab() {
               <div className="mono mt-1 text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)]">
                 v{live.version} · {bytes(live.sizeBytes)}
               </div>
-              <CmsButton className="mt-4" onClick={() => toast("Download (mock)")}>
-                Download ↓
-              </CmsButton>
+              {live.url ? (
+                <a href={live.url} download={live.name} className="mt-4 inline-block">
+                  <CmsButton>Download ↓</CmsButton>
+                </a>
+              ) : (
+                <p className="mt-4 text-[12px] text-[var(--t-muted)]">No file stored for this version.</p>
+              )}
             </>
           ) : (
             <p className="text-[13px] text-[var(--t-muted)]">No live CV.</p>

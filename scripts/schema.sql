@@ -30,11 +30,16 @@ create table if not exists project_media (
 create table if not exists journey (
   id         uuid primary key default gen_random_uuid(),
   date       date not null,
+  end_date   date,
+  ongoing    boolean not null default false,
   title      text not null,
   org        text not null default '',
   note       text not null default '',
   published  boolean not null default false
 );
+-- migration for existing installs
+alter table journey add column if not exists end_date date;
+alter table journey add column if not exists ongoing boolean not null default false;
 
 create table if not exists certificates (
   id         uuid primary key default gen_random_uuid(),

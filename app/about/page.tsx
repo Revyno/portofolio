@@ -35,7 +35,7 @@ export default function AboutPage() {
       </Shell>
 
       {/* Timeline */}
-      <Shell>
+      {/* <Shell>
         <Section>
           <Eyebrow>Timeline</Eyebrow>
           <div className="border-t border-[var(--line)]">
@@ -55,7 +55,7 @@ export default function AboutPage() {
             ))}
           </div>
         </Section>
-      </Shell>
+      </Shell> */}
       
 
       {/* Contribution + skills */}

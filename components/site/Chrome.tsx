@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Nav, MobileTabBar } from "./Nav";
 import { Shell } from "./primitives";
 import { Yesteryear } from "next/font/google";
+import { useProfile } from "@/lib/store";
 
 
 /** Expressive break — one per Home/Contact: outlined 45° box escaping the frame edge. */
@@ -18,6 +19,8 @@ export function DiagonalBreak({ side = "right" }: { side?: "left" | "right" }) {
 }
 
 export function Footer() {
+  const profile = useProfile();
+  const linkedin = profile.linkedin?.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin ?? ""}`;
   return (
     <footer className="border-t border-[var(--line)]">
       <Shell className="flex flex-col gap-4 py-10 md:flex-row md:items-center md:justify-between">
@@ -26,10 +29,10 @@ export function Footer() {
           <p> @ {new Date().getFullYear()} Revellio </p>
         </div>
         <div className="mono flex gap-6 text-[10px] uppercase tracking-[0.16em] text-[var(--t-muted)]">
-           <a href="https://github.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
+           <a href={linkedin} target="_blank" rel="noreferrer" className="hover:text-white">
             LinkedIn ↗
           </a>
-          <a href="https://github.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
+          <a href={profile.github} target="_blank" rel="noreferrer" className="hover:text-white">
             GitHub ↗
           </a>
           <a href="https://gitlab.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { playClick } from "@/lib/sound";
 
 /* Public-site building blocks. All 1px hairlines, no radius, no shadow. */
 
@@ -48,28 +49,41 @@ export function Button({
   type?: "button" | "submit";
 }) {
   const base =
-    "mono inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] px-[26px] py-[15px] transition-colors";
+    "pill mono inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] px-[26px] py-[15px] transition-colors";
   const styles =
     variant === "primary"
       ? "bg-accent text-[#0b0b0b] hover:bg-white"
       : "border border-[var(--line-box)] text-white hover:bg-[var(--accent-hover)]";
   const cls = `${base} ${styles} ${className}`;
+  function handleClick() {
+    playClick();
+    onClick?.();
+  }
   if (href) {
-    const external = href.startsWith("http") || href.startsWith("mailto:");
+    // data:/blob: hrefs can't be top-level-navigated in Chromium (silently blocked);
+    // `download` forces a save instead of a navigation, which works for all href types.
+    const isFile = href.startsWith("data:") || href.startsWith("blob:");
+    if (isFile)
+      return (
+        <a href={href} onClick={handleClick} className={cls} download>
+          {children}
+        </a>
+      );
+    const external = !href.startsWith("/") && !href.startsWith("#");
     if (external)
       return (
-        <a href={href} className={cls} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+        <a href={href} onClick={handleClick} className={cls} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
           {children}
         </a>
       );
     return (
-      <Link href={href} className={cls}>
+      <Link href={href} onClick={handleClick} className={cls}>
         {children}
       </Link>
     );
   }
   return (
-    <button type={type ?? "button"} onClick={onClick} className={cls}>
+    <button type={type ?? "button"} onClick={handleClick} className={cls}>
       {children}
     </button>
   );
@@ -78,7 +92,7 @@ export function Button({
 export function MetaStrip({
   items,
 }: {
-  items: { label: string; value: string; accent?: boolean }[];
+  items: { label: string; value: string; accent?: boolean; href?: string }[];
 }) {
   return (
     <div className="grid grid-cols-2 border-t border-[var(--line)] md:grid-cols-4">
@@ -90,9 +104,15 @@ export function MetaStrip({
           } ${i % 2 === 1 ? "border-l border-[var(--line)] md:border-l" : ""}`}
         >
           <div className="meta-label mb-2">{it.label}</div>
-          <div className={`break-words text-[13.5px] ${it.accent ? "text-accent" : "text-white"}`}>
-            {it.value}
-          </div>
+          {it.href ? (
+            <a href={it.href} target="_blank" rel="noreferrer" className={`break-words text-[13.5px] hover:underline ${it.accent ? "text-accent" : "text-white"}`}>
+              {it.value}
+            </a>
+          ) : (
+            <div className={`break-words text-[13.5px] ${it.accent ? "text-accent" : "text-white"}`}>
+              {it.value}
+            </div>
+          )}
         </div>
       ))}
     </div>

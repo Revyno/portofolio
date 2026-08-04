@@ -6,6 +6,7 @@ import { Shell, Section, Eyebrow } from "@/components/site/primitives";
 import { ProjectCard } from "@/components/site/ProjectRow";
 import { LineReveal, Reveal } from "@/components/site/motion";
 import { useProjects, publicProjects } from "@/lib/store";
+import { playClick } from "@/lib/sound";
 
 export default function ProjectsPage() {
   const all = publicProjects(useProjects());
@@ -39,8 +40,8 @@ export default function ProjectsPage() {
               return (
                 <button
                   key={c.label}
-                  onClick={() => setTag(c.label)}
-                  className={`mono border px-3 py-[14px] text-[9.5px] uppercase tracking-[0.14em] transition-colors md:py-2 ${
+                  onClick={() => { playClick(); setTag(c.label); }}
+                  className={`pill mono border px-4 py-[14px] text-[9.5px] uppercase tracking-[0.14em] transition-colors md:py-2 ${
                     active
                       ? "border-accent bg-accent text-[#0b0b0b]"
                       : "border-[var(--line-box)] text-[var(--t-muted)] hover:text-white"

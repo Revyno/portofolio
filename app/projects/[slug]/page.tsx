@@ -10,6 +10,7 @@ import { Diagram } from "@/components/site/Diagram";
 import { ProjectRow } from "@/components/site/ProjectRow";
 import { SplitReveal, Reveal, Parallax } from "@/components/site/motion";
 import { useProjects, publicProjects } from "@/lib/store";
+import { playClick } from "@/lib/sound";
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
@@ -43,7 +44,7 @@ export default function CaseStudyPage() {
     <PageChrome>
       <Shell>
         <Section border={false} className="pt-12 md:pt-20">
-          <Link href="/projects" className="mono text-[11px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-white">
+          <Link href="/projects" onClick={playClick} className="mono text-[11px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-white">
             ← Projects
           </Link>
           <Eyebrow className="mt-8">{project.tag} · {project.year}</Eyebrow>
@@ -75,7 +76,8 @@ export default function CaseStudyPage() {
                   href={project.liveUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="mono bg-accent px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-[#0b0b0b] transition-colors hover:bg-white"
+                  onClick={playClick}
+                  className="pill mono bg-accent px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-[#0b0b0b] transition-colors hover:bg-white"
                 >
                   Live site ↗
                 </a>
@@ -85,7 +87,8 @@ export default function CaseStudyPage() {
                   href={project.repoUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="mono border border-[var(--line-box)] px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:border-accent hover:text-accent"
+                  onClick={playClick}
+                  className="pill mono border border-[var(--line-box)] px-[26px] py-[15px] text-[11px] uppercase tracking-[0.14em] text-white transition-colors hover:border-accent hover:text-accent"
                 >
                   Source ↗
                 </a>

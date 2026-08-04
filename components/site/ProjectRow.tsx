@@ -2,12 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Project } from "@/lib/data";
 import { pad } from "@/lib/data";
+import { playClick } from "@/lib/sound";
 
 /** Selected-work row — grid: number, name+desc, stack, metric+year, arrow. Hover accent 5%. */
 export function ProjectRow({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
+      onClick={playClick}
       className="group grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[var(--line)] px-0 py-6 transition-colors hover:bg-[var(--accent-hover)] md:grid-cols-[80px_3.2fr_1.6fr_1.3fr_60px] md:gap-6 md:px-3"
     >
       <div className="mono text-[13px] text-[var(--t-muted)]">{pad(project.sortIndex + 1)}</div>
@@ -38,6 +40,7 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.slug}`}
+      onClick={playClick}
       className="group flex min-h-[172px] flex-col justify-between border-b border-l border-[var(--line)] p-5 transition-colors hover:bg-[var(--accent-hover)] md:min-h-[250px]"
     >
       <div className="flex items-start justify-between">
@@ -61,6 +64,18 @@ export function ProjectCard({ project }: { project: Project }) {
         <div className="text-[16px] font-bold leading-[1.12] tracking-[-0.028em] text-white md:text-[24px]">
           {project.name}
         </div>
+        {project.stack && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {project.stack.split("·").map((t) => t.trim()).filter(Boolean).map((t) => (
+              <span
+                key={t}
+                className="mono border border-[var(--line-box)] px-1.5 py-0.5 text-[8.5px] uppercase tracking-[0.1em] text-[var(--t-muted)]"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-between border-t border-[var(--line)] pt-3">
           <span className="mono text-[10px] uppercase tracking-[0.14em] text-accent">
             {project.metric}

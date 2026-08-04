@@ -46,6 +46,8 @@ function toJourney(r: any): Journey {
   return {
     id: r.id,
     date: r.date ? String(r.date).slice(0, 10) : "",
+    endDate: r.end_date ? String(r.end_date).slice(0, 10) : "",
+    ongoing: r.ongoing ?? false,
     title: r.title,
     org: r.org ?? "",
     note: r.note ?? "",
@@ -69,6 +71,7 @@ function toCv(r: any): CvVersion {
     id: r.id,
     version: r.version,
     name: r.name,
+    url: r.url ?? null,
     sizeBytes: r.size_bytes ?? 0,
     isLive: r.is_live,
     uploadedAt: new Date(r.uploaded_at).toISOString(),
@@ -217,13 +220,17 @@ export async function updateProfile(patch: Partial<Profile>): Promise<Profile> {
 // --- journey ---------------------------------------------------------------
 export async function saveJourney(input: Partial<Journey> & { id?: string }): Promise<Journey[]> {
   const title = (input.title ?? "").trim() || "Untitled milestone";
+  const ongoing = input.ongoing ?? false;
+  const date = input.date || new Date().toISOString().slice(0, 10);
+  const endDate = ongoing ? null : input.endDate || null;
   if (input.id) {
-    await sql`update journey set title=${title}, date=${input.date || null},
+    await sql`update journey set title=${title}, date=${date},
+      end_date=${endDate}, ongoing=${ongoing},
       org=${input.org ?? ""}, note=${input.note ?? ""},
       published=${input.published ?? false} where id=${input.id}`;
   } else {
-    await sql`insert into journey (date,title,org,note,published)
-      values (${input.date || null},${title},${input.org ?? ""},
+    await sql`insert into journey (date,end_date,ongoing,title,org,note,published)
+      values (${date},${endDate},${ongoing},${title},${input.org ?? ""},
               ${input.note ?? ""},${input.published ?? false})`;
   }
   return (await sql`select * from journey order by date desc`).map(toJourney as any);
