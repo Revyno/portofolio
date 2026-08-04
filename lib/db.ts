@@ -16,8 +16,16 @@ import { slugify, seed } from "./data";
  * Neon data layer. All SQL lives here; Route Handlers call these.
  * Maps snake_case rows -> the camelCase types the UI already uses (lib/data.ts),
  * so pages/CMS stay untouched.
+ *
+ * Lazy init: `neon()` must not run at module scope — `next build` evaluates
+ * this module before Vercel injects env vars.  We defer via a getter so the
+ * connection is created on first real query, never during build.
  */
-const sql = neon(process.env.DATABASE_URL!);
+let _sql: ReturnType<typeof neon> | undefined;
+function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  if (!_sql) _sql = neon(process.env.DATABASE_URL!);
+  return _sql(strings, ...values);
+}
 
 // deterministic-ish id fallback not needed: Postgres generates uuids.
 
