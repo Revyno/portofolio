@@ -18,7 +18,7 @@ export default function AboutPage() {
           <div className="grid gap-10 md:grid-cols-12 md:gap-6">
             <div className="md:col-span-8">
               <Eyebrow>About</Eyebrow>
-              <LineReveal as="h1" className="text-[46px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[92px]">
+              <LineReveal as="h1" className="text-[clamp(2.75rem,8vw,92px)] font-bold leading-[0.9] tracking-[-0.05em] text-white">
                 {profile.name}
               </LineReveal>
               <Reveal className="mt-6 max-w-[640px] text-[18px] leading-[1.55] text-[var(--t-body)] md:text-[21px]">
@@ -72,7 +72,7 @@ export default function AboutPage() {
                 />
               </div>
               <p className="mono mt-4 text-[10px] uppercase tracking-[0.16em] text-[var(--t-muted)]">
-                Github contribution
+               My Github contribution
               </p>
             </Reveal>
             <Reveal className="md:col-span-7">

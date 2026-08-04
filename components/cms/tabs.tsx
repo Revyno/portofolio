@@ -15,6 +15,7 @@ import {
   deleteMedia,
   addCvVersion,
   restoreCvVersion,
+  deleteCvVersion,
   unpublishAll,
   resetToSeed,
   reindex,
@@ -417,14 +418,14 @@ export function CvTab() {
           {versions.map((v) => (
             <div
               key={v.id}
-              className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--line)] px-6 py-4 md:grid-cols-[80px_1fr_120px_120px]"
+              className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-[var(--line)] px-6 py-4 md:grid-cols-[80px_1fr_120px_auto]"
             >
               <span className="mono text-[12.5px] text-[var(--t-muted)]">v{v.version}</span>
               <span className="truncate text-[14px] text-white">{v.name}</span>
               <span className="mono hidden text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)] md:block">
                 {bytes(v.sizeBytes)}
               </span>
-              <span className="text-right">
+              <span className="flex items-center justify-end gap-4 md:justify-start">
                 {v.isLive ? (
                   <StatusPill published />
                 ) : (
@@ -438,6 +439,17 @@ export function CvTab() {
                     Restore →
                   </button>
                 )}
+                <button
+                  className="mono text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)] transition-colors hover:text-danger"
+                  onClick={() => {
+                    if (confirm(`Delete v${v.version} “${v.name}”? This removes the file.`)) {
+                      deleteCvVersion(v.id);
+                      toast(`v${v.version} deleted`);
+                    }
+                  }}
+                >
+                  Delete ✕
+                </button>
               </span>
             </div>
           ))}

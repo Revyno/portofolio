@@ -24,7 +24,7 @@ export default function HomePage() {
               <Eyebrow>{profile.role} · {profile.location}</Eyebrow>
               <SplitReveal
                 as="h1"
-                className="text-[46px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[150px] md:leading-[0.86] md:tracking-[-0.055em]"
+                className="text-[clamp(2.75rem,11vw,150px)] font-bold leading-[0.9] tracking-[-0.05em] text-white md:leading-[0.86] md:tracking-[-0.055em]"
               >
                 Welcome To My Portfolio
               </SplitReveal>
@@ -69,8 +69,8 @@ export default function HomePage() {
                 Three that carry the argument.
               </LineReveal>
             </div>
-            <Button href="/work" variant="ghost" className="hidden md:inline-flex">
-              All work →
+            <Button href="/projects" variant="ghost" className="hidden md:inline-flex">
+              All projects →
             </Button>
           </div>
           <div className="border-t border-[var(--line)]">
@@ -78,8 +78,8 @@ export default function HomePage() {
               <ProjectRow key={p.id} project={p} />
             ))}
           </div>
-          <Button href="/work" variant="ghost" className="mt-8 w-full justify-center md:hidden">
-            All work →
+          <Button href="/projects" variant="ghost" className="mt-8 w-full justify-center md:hidden">
+            All projects →
           </Button>
           </Reveal>
         </Section>
@@ -121,13 +121,13 @@ export default function HomePage() {
             </div>
             <div className="md:col-span-7">
               <Terminal
-                href="/work"
+                href="/projects"
                 lines={[
                   { kind: "comment", text: "use this to change routes or links" },
                   // { kind: "cmd", text: "PATCH /api/projects/kanvas-studio/publish" },
                   { kind: "out", text: "→ projects.published = true" },
                   { kind: "cmd", text: "sudo apt update ....." },
-                  { kind: "ok", text: "✓ /work revalidated in 41ms — live" },
+                  { kind: "ok", text: "✓ /projects revalidated in 41ms — live" },
                 ]}
               />
             </div>

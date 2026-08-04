@@ -22,7 +22,7 @@ export default function JourneyPage() {
       <Shell>
         <Section border={false} className="pt-10 md:pt-20">
           <Eyebrow>{steps.length} milestones</Eyebrow>
-          <LineReveal as="h1" className="text-[54px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[92px]">
+          <LineReveal as="h1" className="text-[clamp(3rem,8vw,92px)] font-bold leading-[0.9] tracking-[-0.05em] text-white">
             Journey
           </LineReveal>
         </Section>

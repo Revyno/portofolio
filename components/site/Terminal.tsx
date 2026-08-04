@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Terminal as XTerm } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 
 type Line =
@@ -32,7 +33,7 @@ async function type(term: XTerm, text: string, ms = 14) {
 }
 
 const ROUTES: Record<string, string> = {
-  work: "/work",
+  projects: "/projects",
   about: "/about",
   journey: "/journey",
   contact: "/contact",
@@ -102,13 +103,13 @@ export function Terminal({
 
       if (name === "help") {
         t.write(`${GHOST}commands:${R}\r\n`);
-        t.write("  work, about, journey, contact, home   navigate\r\n");
+        t.write("  projects, about, journey, contact, home   navigate\r\n");
         t.write("  ls                                     list routes\r\n");
         t.write("  clear                                  clear screen\r\n");
         t.write("  help                                   this list\r\n");
         if (href) t.write(`  → try: ${href.replace("/", "") || "home"}\r\n`);
       } else if (name === "ls") {
-        t.write("work   about   journey   contact   home\r\n");
+        t.write("projects   about   journey   contact   home\r\n");
       } else if (name === "clear") {
         t.clear();
       } else if (ROUTES[name]) {
@@ -156,7 +157,19 @@ export function Terminal({
       },
     });
     termRef.current = term;
+    const fit = new FitAddon();
+    term.loadAddon(fit);
     term.open(el);
+    fit.fit(); // size cols/rows to the container — no fixed 92-col overflow on mobile
+
+    const ro = new ResizeObserver(() => {
+      try {
+        fit.fit();
+      } catch {
+        /* element detached mid-resize */
+      }
+    });
+    ro.observe(el);
 
     const onData = (data: string) => {
       const t = termRef.current;
@@ -248,6 +261,7 @@ export function Terminal({
 
     return () => {
       io.disconnect();
+      ro.disconnect();
       term.dispose();
       termRef.current = null;
     };
@@ -255,8 +269,8 @@ export function Terminal({
   }, []);
 
   return (
-    <div className="mono overflow-x-auto border border-[var(--line-box)] bg-s1 p-3 text-[12.5px]">
-      <div ref={ref} />
+    <div className="mono border border-[var(--line-box)] bg-s1 p-3 text-[12.5px]">
+      <div ref={ref} className="h-[300px] w-full" />
     </div>
   );
 }

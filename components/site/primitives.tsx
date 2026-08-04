@@ -90,7 +90,7 @@ export function MetaStrip({
           } ${i % 2 === 1 ? "border-l border-[var(--line)] md:border-l" : ""}`}
         >
           <div className="meta-label mb-2">{it.label}</div>
-          <div className={`text-[13.5px] ${it.accent ? "text-accent" : "text-white"}`}>
+          <div className={`break-words text-[13.5px] ${it.accent ? "text-accent" : "text-white"}`}>
             {it.value}
           </div>
         </div>

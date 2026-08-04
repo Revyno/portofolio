@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const ITEMS = [
   { href: "/", label: "Home" },
-  { href: "/work", label: "Work" },
+  { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/journey", label: "Journey" },
 ];
@@ -45,10 +45,10 @@ export function Nav() {
           <li>
             <Link
               href="/contact"
-              className={`px-[18px] py-[9px] transition-colors ${
+              className={`border px-[18px] py-[9px] transition-all ${
                 isActive(pathname, "/contact")
-                  ? "bg-white text-[#0b0b0b]"
-                  : "bg-accent text-[#4CE0FF] hover:bg-[#4CE0FF]"
+                  ? "rounded-full border-accent bg-white text-[#0b0b0b]"
+                  : "rounded-md border-white/40 bg-accent text-[#4CE0FF] hover:border-white hover:bg-[#4CE0FF]"
               }`}
             >
               Contact

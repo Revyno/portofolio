@@ -7,7 +7,7 @@ import { ProjectCard } from "@/components/site/ProjectRow";
 import { LineReveal, Reveal } from "@/components/site/motion";
 import { useProjects, publicProjects } from "@/lib/store";
 
-export default function WorkPage() {
+export default function ProjectsPage() {
   const all = publicProjects(useProjects());
   const [tag, setTag] = useState<string>("All");
 
@@ -28,8 +28,8 @@ export default function WorkPage() {
       <Shell>
         <Section border={false} className="pt-10 md:pt-20">
           <Eyebrow>{all.length} published projects</Eyebrow>
-          <LineReveal as="h1" className="text-[54px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[92px]">
-            Work
+          <LineReveal as="h1" className="text-[clamp(3rem,8vw,92px)] font-bold leading-[0.9] tracking-[-0.05em] text-white">
+            Projects
           </LineReveal>
 
           {/* filter chips */}
@@ -53,7 +53,7 @@ export default function WorkPage() {
           </Reveal>
 
           {/* grid — border top+right so cards' left/bottom borders complete the cells */}
-          <Reveal className="mt-10 grid grid-cols-2 border-r border-t border-[var(--line)] md:grid-cols-4">
+          <Reveal className="mt-10 grid grid-cols-2 border-r border-t border-[var(--line)] sm:grid-cols-3 md:grid-cols-4">
             {shown.map((p) => (
               <ProjectCard key={p.id} project={p} />
             ))}

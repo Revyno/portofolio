@@ -287,6 +287,15 @@ export async function restoreCvVersion(id: string): Promise<CvVersion[]> {
   await sql`update cv_versions set is_live = (id = ${id})`;
   return (await sql`select * from cv_versions order by version desc`).map(toCv as any);
 }
+export async function deleteCvVersion(id: string): Promise<CvVersion[]> {
+  await sql`delete from cv_versions where id=${id}`;
+  // If the live file was just deleted, promote the newest remaining version.
+  const rows = (await sql`select * from cv_versions order by version desc`) as any[];
+  if (rows.length > 0 && !rows.some((r) => r.is_live)) {
+    await sql`update cv_versions set is_live = true where id=${rows[0].id}`;
+  }
+  return (await sql`select * from cv_versions order by version desc`).map(toCv as any);
+}
 
 // --- danger zone -----------------------------------------------------------
 export async function unpublishAll(): Promise<Project[]> {

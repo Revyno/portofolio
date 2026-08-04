@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
         });
       case "restoreCvVersion":
         return Response.json({ cvVersions: await db.restoreCvVersion(a.id as string) });
+      case "deleteCvVersion":
+        return Response.json({ cvVersions: await db.deleteCvVersion(a.id as string) });
 
       default:
         return Response.json({ error: `unknown action: ${action}` }, { status: 400 });

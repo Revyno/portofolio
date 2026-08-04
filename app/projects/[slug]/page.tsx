@@ -22,14 +22,14 @@ export default function CaseStudyPage() {
       <PageChrome>
         <Shell>
           <Section border={false} className="pt-24">
-            <h1 className="text-[46px] font-bold tracking-[-0.05em] text-white md:text-[92px]">
+            <h1 className="text-[clamp(2.75rem,8vw,92px)] font-bold tracking-[-0.05em] text-white">
               Not found
             </h1>
             <p className="mt-4 text-[15px] text-[var(--t-body)]">
               This case study is unpublished or does not exist.
             </p>
-            <Button href="/work" variant="ghost" className="mt-8">
-              ← All work
+            <Button href="/projects" variant="ghost" className="mt-8">
+              ← All projects
             </Button>
           </Section>
         </Shell>
@@ -43,13 +43,13 @@ export default function CaseStudyPage() {
     <PageChrome>
       <Shell>
         <Section border={false} className="pt-12 md:pt-20">
-          <Link href="/work" className="mono text-[11px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-white">
-            ← Work
+          <Link href="/projects" className="mono text-[11px] uppercase tracking-[0.14em] text-[var(--t-muted)] hover:text-white">
+            ← Projects
           </Link>
           <Eyebrow className="mt-8">{project.tag} · {project.year}</Eyebrow>
           <SplitReveal
             as="h1"
-            className="text-[46px] font-bold leading-[0.9] tracking-[-0.05em] text-white md:text-[96px]"
+            className="text-[clamp(2.75rem,9vw,96px)] font-bold leading-[0.9] tracking-[-0.05em] text-white"
           >
             {project.name}
           </SplitReveal>
@@ -149,7 +149,7 @@ export default function CaseStudyPage() {
 export async function PATCH(req: Request, { params }: Ctx) {
   const { id } = await params
   await sql\`update projects set published = not published where id = \${id}\`
-  revalidateTag('content')       // /work re-reads on next request
+  revalidateTag('content')       // /projects re-reads on next request
   return Response.json({ ok: true })
 }`}
           />

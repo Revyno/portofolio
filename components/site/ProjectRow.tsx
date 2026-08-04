@@ -7,7 +7,7 @@ import { pad } from "@/lib/data";
 export function ProjectRow({ project }: { project: Project }) {
   return (
     <Link
-      href={`/work/${project.slug}`}
+      href={`/projects/${project.slug}`}
       className="group grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b border-[var(--line)] px-0 py-6 transition-colors hover:bg-[var(--accent-hover)] md:grid-cols-[80px_3.2fr_1.6fr_1.3fr_60px] md:gap-6 md:px-3"
     >
       <div className="mono text-[13px] text-[var(--t-muted)]">{pad(project.sortIndex + 1)}</div>
@@ -37,7 +37,7 @@ export function ProjectRow({ project }: { project: Project }) {
 export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
-      href={`/work/${project.slug}`}
+      href={`/projects/${project.slug}`}
       className="group flex min-h-[172px] flex-col justify-between border-b border-l border-[var(--line)] p-5 transition-colors hover:bg-[var(--accent-hover)] md:min-h-[250px]"
     >
       <div className="flex items-start justify-between">

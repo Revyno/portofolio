@@ -276,6 +276,10 @@ export function restoreCvVersion(id: string) {
   patch({ cvVersions: state.cvVersions.map((v) => ({ ...v, isLive: v.id === id })) });
   void mutate("restoreCvVersion", { id });
 }
+export function deleteCvVersion(id: string) {
+  patch({ cvVersions: state.cvVersions.filter((v) => v.id !== id) });
+  void mutate("deleteCvVersion", { id });
+}
 
 // --- settings / danger -----------------------------------------------------
 export function unpublishAll() {

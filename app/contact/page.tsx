@@ -12,7 +12,7 @@ export default function ContactPage() {
   const profile = useProfile();
   const [sent, setSent] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // ponytail: no backend — just confirm. Wire to /api/contact later.
     setSent(true);
@@ -20,7 +20,7 @@ export default function ContactPage() {
   }
 
   const field =
-    "w-full border border-[var(--line-box)] bg-field px-3 py-3 text-[13px] text-white placeholder:text-[var(--t-ghost)] outline-none focus:border-accent";
+    "w-full border border-[var(--line-box)] bg-field px-3 py-3 text-[16px] text-white placeholder:text-[var(--t-ghost)] outline-none focus:border-accent md:text-[13px]";
 
   return (
     <PageChrome>
@@ -30,7 +30,7 @@ export default function ContactPage() {
         <Shell>
           <Section border={false} className="pt-10 md:pt-20">
             <Eyebrow>Contact</Eyebrow>
-            <LineReveal as="h1" className="text-[46px] font-bold leading-[0.84] tracking-[-0.06em] text-white md:text-[168px]">
+            <LineReveal as="h1" className="text-[clamp(2.75rem,13vw,168px)] font-bold leading-[0.84] tracking-[-0.06em] text-white">
               Let’s talk.
             </LineReveal>
 
@@ -38,8 +38,8 @@ export default function ContactPage() {
               <MetaStrip
                 items={[
                   { label: "Email", value: profile.email, accent: true },
-                  { label: "GitHub", value: `@${profile.github}` },
-                  { label: "LinkedIn", value: `/${profile.linkedin}` },
+                  { label: "GitHub", value: `${profile.github}`, accent: true },
+                  { label: "LinkedIn", value: `${profile.linkedin}`, accent: true },
                   { label: "Location", value: profile.location },
                 ]}
               />
