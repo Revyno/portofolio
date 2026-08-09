@@ -241,15 +241,15 @@ export async function saveJourney(input: Partial<Journey> & { id?: string }): Pr
       values (${date},${endDate},${ongoing},${title},${input.org ?? ""},
               ${input.note ?? ""},${input.published ?? false})`;
   }
-  return (await sql`select * from journey order by date desc`).map(toJourney as any);
+  return ((await sql`select * from journey order by date desc`) as any[]).map(toJourney as any);
 }
 export async function deleteJourney(id: string): Promise<Journey[]> {
   await sql`delete from journey where id=${id}`;
-  return (await sql`select * from journey order by date desc`).map(toJourney as any);
+  return ((await sql`select * from journey order by date desc`) as any[]).map(toJourney as any);
 }
 export async function toggleJourneyPublished(id: string): Promise<Journey[]> {
   await sql`update journey set published = not published where id=${id}`;
-  return (await sql`select * from journey order by date desc`).map(toJourney as any);
+  return ((await sql`select * from journey order by date desc`) as any[]).map(toJourney as any);
 }
 
 // --- certificates ----------------------------------------------------------
@@ -265,27 +265,27 @@ export async function saveCertificate(input: Partial<Certificate> & { id?: strin
       values (${next[0].n},${input.year ?? ""},${title},${input.venue ?? ""},
               ${input.coverUrl ?? null},${input.linkUrl ?? null},${input.published ?? false})`;
   }
-  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
+  return ((await sql`select * from certificates order by sort_index`) as any[]).map(toCertificate as any);
 }
 export async function deleteCertificate(id: string): Promise<Certificate[]> {
   await sql`delete from certificates where id=${id}`;
-  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
+  return ((await sql`select * from certificates order by sort_index`) as any[]).map(toCertificate as any);
 }
 export async function toggleCertificatePublished(id: string): Promise<Certificate[]> {
   await sql`update certificates set published = not published where id=${id}`;
-  return (await sql`select * from certificates order by sort_index`).map(toCertificate as any);
+  return ((await sql`select * from certificates order by sort_index`) as any[]).map(toCertificate as any);
 }
 
 // --- media -----------------------------------------------------------------
 export async function addMedia(url: string, caption = ""): Promise<MediaItem[]> {
   await sql`insert into media (url,caption) values (${url},${caption})`;
-  return (await sql`select * from media order by created_at desc`).map((m: any) => ({
+  return ((await sql`select * from media order by created_at desc`) as any[]).map((m: any) => ({
     id: m.id, url: m.url, caption: m.caption ?? "",
   }));
 }
 export async function deleteMedia(id: string): Promise<MediaItem[]> {
   await sql`delete from media where id=${id}`;
-  return (await sql`select * from media order by created_at desc`).map((m: any) => ({
+  return ((await sql`select * from media order by created_at desc`) as any[]).map((m: any) => ({
     id: m.id, url: m.url, caption: m.caption ?? "",
   }));
 }
@@ -296,11 +296,11 @@ export async function addCvVersion(name: string, sizeBytes: number, url: string 
   await sql`update cv_versions set is_live=false`;
   await sql`insert into cv_versions (version,name,url,size_bytes,is_live)
     values (${next[0].v},${name},${url},${sizeBytes},true)`;
-  return (await sql`select * from cv_versions order by version desc`).map(toCv as any);
+  return ((await sql`select * from cv_versions order by version desc`) as any[]).map(toCv as any);
 }
 export async function restoreCvVersion(id: string): Promise<CvVersion[]> {
   await sql`update cv_versions set is_live = (id = ${id})`;
-  return (await sql`select * from cv_versions order by version desc`).map(toCv as any);
+  return ((await sql`select * from cv_versions order by version desc`) as any[]).map(toCv as any);
 }
 export async function deleteCvVersion(id: string): Promise<CvVersion[]> {
   await sql`delete from cv_versions where id=${id}`;
@@ -309,7 +309,7 @@ export async function deleteCvVersion(id: string): Promise<CvVersion[]> {
   if (rows.length > 0 && !rows.some((r) => r.is_live)) {
     await sql`update cv_versions set is_live = true where id=${rows[0].id}`;
   }
-  return (await sql`select * from cv_versions order by version desc`).map(toCv as any);
+  return ((await sql`select * from cv_versions order by version desc`) as any[]).map(toCv as any);
 }
 
 // --- danger zone -----------------------------------------------------------
