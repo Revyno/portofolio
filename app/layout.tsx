@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { AIAssistantGate } from "@/components/ai-assistant/AIAssistantGate";
 
 const plex = IBM_Plex_Mono({
   variable: "--font-plex",
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={plex.variable} suppressHydrationWarning>
-        <body suppressHydrationWarning>{children}</body>
+        <body suppressHydrationWarning>
+          {children}
+          <AIAssistantGate />
+        </body>
       </html>
     </ClerkProvider>
   );
