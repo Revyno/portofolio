@@ -66,7 +66,7 @@ export default function VRMCharacter() {
 
     let disposed = false;
     let raf = 0;
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
@@ -172,7 +172,8 @@ export default function VRMCharacter() {
 
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      const delta = clock.getDelta();
+      timer.update();
+      const delta = timer.getDelta();
       if (vrm) {
         const st = statusRef.current;
         anim.t += delta;

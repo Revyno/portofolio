@@ -17,4 +17,12 @@ export function reduced(): boolean {
   );
 }
 
+/** Phone-width viewport (< md). SplitText DOM surgery reflows on these — fade instead. */
+export function isMobile(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 767px)").matches
+  );
+}
+
 export { gsap, ScrollTrigger, SplitText };

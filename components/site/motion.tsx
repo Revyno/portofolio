@@ -10,7 +10,7 @@
 
 import { useRef, type ReactNode, type ElementType } from "react";
 import { useGSAP } from "./useGSAP";
-import { gsap, ScrollTrigger, SplitText, reduced } from "./gsap";
+import { gsap, ScrollTrigger, SplitText, reduced, isMobile } from "./gsap";
 
 /** Headline: split into words, rise + fade in on mount. */
 export function SplitReveal({
@@ -29,6 +29,13 @@ export function SplitReveal({
   useGSAP(() => {
     const el = ref.current;
     if (!el || reduced()) return;
+    // Mobile: skip per-word SplitText. Splitting the clamped hero headline
+    // reflows it on first paint and flashes the words at the top-left before
+    // they rise — a plain fade is jump-free and reads the same at phone scale.
+    if (isMobile()) {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out", delay });
+      return;
+    }
     const split = new SplitText(el, { type: "words", wordsClass: "sr-word" });
     gsap.set(el, { opacity: 1 });
     gsap.from(split.words, {
@@ -80,6 +87,15 @@ export function LineReveal({
   useGSAP(() => {
     const el = ref.current;
     if (!el || reduced()) return;
+    // Mobile: per-line masks mutate the DOM and reflow — fade the whole block up.
+    if (isMobile()) {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration, ease: "expo.out", delay, scrollTrigger: { trigger: el, start, once: true } },
+      );
+      return;
+    }
     const split = new SplitText(el, { type: "lines", linesClass: "lr-line" });
     // wrap each line in a mask div so the clip is per-line
     split.lines.forEach((line) => {
