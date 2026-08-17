@@ -22,8 +22,10 @@ function Widget() {
 
   return (
     <div
-      className="fixed flex flex-col items-end gap-3"
-      style={{ bottom: 20, right: 20, zIndex: Z_INDEX }}
+      // Mobile has a fixed 52px bottom tab bar (MobileTabBar) — clear it, then
+      // sit at the usual 20px above the viewport edge on desktop.
+      className="fixed bottom-[72px] right-5 flex flex-col items-end gap-3 md:bottom-5"
+      style={{ zIndex: Z_INDEX }}
     >
       {/* `mounted` flips true on first open and stays — avoids reloading the VRM. */}
       <AssistantWindow vrmSlot={mounted ? <VRMCharacter /> : null} />

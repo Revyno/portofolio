@@ -142,6 +142,7 @@ export function saveProject(input: Partial<Project> & { id?: string }): Project 
     description: input.description ?? "",
     stack: input.stack ?? "",
     metric: input.metric ?? "",
+    duration: input.duration ?? "",
     year: input.year ?? String(new Date().getFullYear()),
     published: input.published ?? false,
     coverUrl: input.coverUrl ?? null,

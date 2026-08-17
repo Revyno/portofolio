@@ -66,7 +66,7 @@ export default function VRMCharacter() {
 
     let disposed = false;
     let raf = 0;
-    const timer = new THREE.Timer();
+    const clock = new THREE.Clock();
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
@@ -156,7 +156,7 @@ export default function VRMCharacter() {
               hasVrma = true;
             }
           } catch (e) {
-            console.warn("VRMA load failed, using procedural pose:", e);
+            console.warn("VRM load failed, using procedural pose:", e);
           }
         }
         if (!hasVrma) applyRelaxedPose(v);
@@ -172,8 +172,7 @@ export default function VRMCharacter() {
 
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      timer.update();
-      const delta = timer.getDelta();
+      const delta = clock.getDelta();
       if (vrm) {
         const st = statusRef.current;
         anim.t += delta;

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { PageChrome } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, MetaStrip, MetricTile, Button } from "@/components/site/primitives";
@@ -11,6 +12,50 @@ import { ProjectRow } from "@/components/site/ProjectRow";
 import { SplitReveal, Reveal, Parallax } from "@/components/site/motion";
 import { useProjects, publicProjects } from "@/lib/store";
 import { playClick } from "@/lib/sound";
+import type { Project } from "@/lib/data";
+
+/** Simple index-based carousel — gallery is capped at 5 images, no library needed. */
+function Gallery({ media, name }: { media: Project["media"]; name: string }) {
+  const [i, setI] = useState(0);
+  if (media.length === 0) return null;
+  const go = (d: number) => setI((n) => (n + d + media.length) % media.length);
+
+  return (
+    <Shell>
+      <div className="relative aspect-[16/9] w-full overflow-hidden border border-[var(--line-box)]">
+        <Image src={media[i].url} alt={media[i].caption || name} fill sizes="1440px" className="object-cover" />
+        {media.length > 1 && (
+          <>
+            <button
+              onClick={() => go(-1)}
+              aria-label="Previous image"
+              className="mono absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 px-3 py-2 text-white transition-colors hover:bg-black/85"
+            >
+              ←
+            </button>
+            <button
+              onClick={() => go(1)}
+              aria-label="Next image"
+              className="mono absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 px-3 py-2 text-white transition-colors hover:bg-black/85"
+            >
+              →
+            </button>
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2">
+              {media.map((m, j) => (
+                <button
+                  key={m.id}
+                  onClick={() => setI(j)}
+                  aria-label={`Go to image ${j + 1}`}
+                  className={`h-1.5 w-1.5 rounded-full transition-colors ${j === i ? "bg-accent" : "bg-white/40"}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </Shell>
+  );
+}
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
@@ -62,7 +107,7 @@ export default function CaseStudyPage() {
             <MetaStrip
               items={[
                 { label: "Role", value: "Full-stack" },
-                { label: "Duration", value: "6 weeks" },
+                { label: "Duration", value: project.duration || "—" },
                 { label: "Stack", value: project.stack },
                 { label: "Result", value: project.metric, accent: true },
               ]}
@@ -107,6 +152,8 @@ export default function CaseStudyPage() {
           </div>
         </Shell>
       )}
+
+      <Gallery media={project.media} name={project.name} />
 
       <Shell>
         <Section>

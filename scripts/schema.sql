@@ -11,6 +11,7 @@ create table if not exists projects (
   description text not null default '',
   stack       text not null default '',
   metric      text not null default '',
+  duration    text not null default '',
   year        text not null default '',
   published   boolean not null default false,
   cover_url   text,
@@ -18,6 +19,7 @@ create table if not exists projects (
   repo_url    text,
   updated_at  timestamptz not null default now()
 );
+alter table projects add column if not exists duration text not null default '';
 
 create table if not exists project_media (
   id          uuid primary key default gen_random_uuid(),

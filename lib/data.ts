@@ -23,6 +23,7 @@ export type Project = {
   description: string;
   stack: string;
   metric: string;
+  duration: string;
   year: string;
   published: boolean;
   coverUrl: string | null;
@@ -150,6 +151,7 @@ function proj(
   year: string,
   published: boolean,
   cover: string,
+  duration = "",
 ): Project {
   return {
     id: `seed-${i}`,
@@ -160,6 +162,7 @@ function proj(
     description,
     stack,
     metric,
+    duration,
     year,
     published,
     coverUrl: cover,
@@ -179,8 +182,8 @@ export const seed: Store = {
     email: "reveliowalker22@gmail.com",
     github: "https://github.com/Revyno",
     linkedin: "https://www.linkedin.com/in/revellio-christopel-oktufovian-lumbaa/",
-    heroUrl: "/assets/hero.png",
-    photoUrl: "/assets/mainm.jpeg",
+    heroUrl: null,
+    photoUrl: null,
     available: true,
     cvVisible: true,
   },

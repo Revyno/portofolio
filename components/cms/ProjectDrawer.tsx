@@ -24,12 +24,15 @@ export function ProjectDrawer({
     description: base?.description ?? "",
     stack: base?.stack ?? "",
     metric: base?.metric ?? "",
+    duration: base?.duration ?? "",
     year: base?.year ?? "2026",
     published: base?.published ?? false,
     coverUrl: base?.coverUrl ?? null,
     liveUrl: base?.liveUrl ?? "",
     repoUrl: base?.repoUrl ?? "",
+    media: base?.media ?? [],
   });
+  const GALLERY_MAX = 5;
 
   if (project === null) return null;
 
@@ -96,9 +99,14 @@ export function ProjectDrawer({
           <Field label="Stack">
             <Input value={form.stack} onChange={(e) => upd("stack", e.target.value)} placeholder="Next.js · Three.js · GSAP" />
           </Field>
-          <Field label="Metric">
-            <Input value={form.metric} onChange={(e) => upd("metric", e.target.value)} placeholder="p99 2.8s → 86ms" />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Metric">
+              <Input value={form.metric} onChange={(e) => upd("metric", e.target.value)} placeholder="p99 2.8s → 86ms" />
+            </Field>
+            <Field label="Duration">
+              <Input value={form.duration} onChange={(e) => upd("duration", e.target.value)} placeholder="6 weeks" />
+            </Field>
+          </div>
           <Field label="Live URL">
             <Input
               type="url"
@@ -128,6 +136,30 @@ export function ProjectDrawer({
               </div>
             ) : (
               <Dropzone onFile={(url) => upd("coverUrl", url)} hint="Drop cover (3:2)" height={150} />
+            )}
+          </Field>
+          <Field label={`Gallery — carousel (${form.media.length}/${GALLERY_MAX})`}>
+            <div className="grid grid-cols-3 gap-2">
+              {form.media.map((m, i) => (
+                <div key={m.id} className="relative aspect-square border border-[var(--line-box)]">
+                  <Image src={m.url} alt={m.caption || "gallery"} fill sizes="180px" className="object-cover" />
+                  <button
+                    onClick={() => upd("media", form.media.filter((_, j) => j !== i))}
+                    className="mono absolute right-1 top-1 bg-black/70 px-1.5 py-0.5 text-[9px] text-white transition-colors hover:bg-black/90"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            {form.media.length < GALLERY_MAX && (
+              <div className="mt-2">
+                <Dropzone
+                  onFile={(url) => upd("media", [...form.media, { id: `tmp-${Date.now()}`, url, caption: "" }])}
+                  hint={`Drop image to add (${GALLERY_MAX - form.media.length} left)`}
+                  height={90}
+                />
+              </div>
             )}
           </Field>
           <div className="flex items-center justify-between border-t border-[var(--line)] pt-5">

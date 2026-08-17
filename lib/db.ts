@@ -41,6 +41,7 @@ function toProject(r: any, media: MediaItem[]): Project {
     description: r.description ?? "",
     stack: r.stack ?? "",
     metric: r.metric ?? "",
+    duration: r.duration ?? "",
     year: r.year ?? "",
     published: r.published,
     coverUrl: r.cover_url ?? null,
@@ -147,17 +148,30 @@ async function reindexProjects() {
     update projects p set sort_index = ranked.rn from ranked where p.id = ranked.id`;
 }
 
+// Gallery is fully replaced on save (matches the drawer's single-form UX) —
+// capped at 5 to match the carousel's design budget.
+async function syncProjectMedia(projectId: string, media: MediaItem[] | undefined) {
+  if (media === undefined) return;
+  await sql`delete from project_media where project_id=${projectId}`;
+  let i = 0;
+  for (const m of media.slice(0, 5)) {
+    await sql`insert into project_media (project_id,url,caption,sort_index) values (${projectId},${m.url},${m.caption ?? ""},${i++})`;
+  }
+}
+
 // --- project mutations -----------------------------------------------------
 export async function createProject(input: Partial<Project>): Promise<Project[]> {
   const name = (input.name ?? "").trim() || "Untitled project"; // AC7
   const slug = await uniqueSlug(slugify(name));
   const next = await sql`select coalesce(max(sort_index)+1, 0) as n from projects`;
-  await sql`insert into projects
-    (sort_index,slug,name,tag,description,stack,metric,year,published,cover_url,live_url,repo_url)
+  const rows = await sql`insert into projects
+    (sort_index,slug,name,tag,description,stack,metric,duration,year,published,cover_url,live_url,repo_url)
     values (${(next as any)[0].n},${slug},${name},${input.tag ?? "Web App"},
-            ${input.description ?? ""},${input.stack ?? ""},${input.metric ?? ""},
+            ${input.description ?? ""},${input.stack ?? ""},${input.metric ?? ""},${input.duration ?? ""},
             ${input.year ?? String(new Date().getFullYear())},${input.published ?? false},
-            ${input.coverUrl ?? null},${input.liveUrl ?? null},${input.repoUrl ?? null})`;
+            ${input.coverUrl ?? null},${input.liveUrl ?? null},${input.repoUrl ?? null})
+    returning id`;
+  await syncProjectMedia((rows as any)[0].id, input.media);
   await reindexProjects();
   return getProjects();
 }
@@ -168,11 +182,12 @@ export async function updateProject(id: string, input: Partial<Project>): Promis
   await sql`update projects set
     name=${name}, slug=${slug}, tag=${input.tag ?? "Web App"},
     description=${input.description ?? ""}, stack=${input.stack ?? ""},
-    metric=${input.metric ?? ""}, year=${input.year ?? ""},
+    metric=${input.metric ?? ""}, duration=${input.duration ?? ""}, year=${input.year ?? ""},
     published=${input.published ?? false}, cover_url=${input.coverUrl ?? null},
     live_url=${input.liveUrl ?? null}, repo_url=${input.repoUrl ?? null},
     updated_at=now()
     where id=${id}`;
+  await syncProjectMedia(id, input.media);
   await reindexProjects();
   return getProjects();
 }

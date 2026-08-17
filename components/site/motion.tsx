@@ -126,6 +126,10 @@ export function Reveal({
   useGSAP(() => {
     const el = ref.current;
     if (!el || reduced()) return;
+    // Blocks already on-screen at load were painted in place by SSR. gsap.from's
+    // immediateRender yanks them to opacity:0/y before animating back — a visible
+    // first-load jump on mobile. Only reveal-on-scroll for blocks below the fold.
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
     gsap.from(el, {
       y,
       opacity: 0,

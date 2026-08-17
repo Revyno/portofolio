@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import type { NextRequest } from "next/server";
 import * as db from "@/lib/db";
 import { isAdmin } from "@/lib/admin";
@@ -24,56 +25,78 @@ export async function POST(req: NextRequest) {
   const a = (args ?? {}) as Record<string, unknown>;
 
   try {
+    let result: unknown;
     switch (action) {
       case "createProject":
-        return Response.json({ projects: await db.createProject(a) });
+        result = { projects: await db.createProject(a) };
+        break;
       case "updateProject":
-        return Response.json({ projects: await db.updateProject(a.id as string, a) });
+        result = { projects: await db.updateProject(a.id as string, a) };
+        break;
       case "deleteProject":
-        return Response.json({ projects: await db.deleteProject(a.id as string) });
+        result = { projects: await db.deleteProject(a.id as string) };
+        break;
       case "toggleProjectPublished":
-        return Response.json({ projects: await db.toggleProjectPublished(a.id as string) });
+        result = { projects: await db.toggleProjectPublished(a.id as string) };
+        break;
       case "moveProject":
-        return Response.json({ projects: await db.moveProject(a.id as string, a.dir as -1 | 1) });
+        result = { projects: await db.moveProject(a.id as string, a.dir as -1 | 1) };
+        break;
       case "unpublishAll":
-        return Response.json({ projects: await db.unpublishAll() });
+        result = { projects: await db.unpublishAll() };
+        break;
       case "resetToSeed":
-        return Response.json(await db.resetToSeed());
+        result = await db.resetToSeed();
+        break;
 
       case "updateProfile":
-        return Response.json({ profile: await db.updateProfile(a) });
+        result = { profile: await db.updateProfile(a) };
+        break;
 
       case "saveJourney":
-        return Response.json({ journey: await db.saveJourney(a) });
+        result = { journey: await db.saveJourney(a) };
+        break;
       case "deleteJourney":
-        return Response.json({ journey: await db.deleteJourney(a.id as string) });
+        result = { journey: await db.deleteJourney(a.id as string) };
+        break;
       case "toggleJourneyPublished":
-        return Response.json({ journey: await db.toggleJourneyPublished(a.id as string) });
+        result = { journey: await db.toggleJourneyPublished(a.id as string) };
+        break;
 
       case "saveCertificate":
-        return Response.json({ certificates: await db.saveCertificate(a) });
+        result = { certificates: await db.saveCertificate(a) };
+        break;
       case "deleteCertificate":
-        return Response.json({ certificates: await db.deleteCertificate(a.id as string) });
+        result = { certificates: await db.deleteCertificate(a.id as string) };
+        break;
       case "toggleCertificatePublished":
-        return Response.json({ certificates: await db.toggleCertificatePublished(a.id as string) });
+        result = { certificates: await db.toggleCertificatePublished(a.id as string) };
+        break;
 
       case "addMedia":
-        return Response.json({ media: await db.addMedia(a.url as string, (a.caption as string) ?? "") });
+        result = { media: await db.addMedia(a.url as string, (a.caption as string) ?? "") };
+        break;
       case "deleteMedia":
-        return Response.json({ media: await db.deleteMedia(a.id as string) });
+        result = { media: await db.deleteMedia(a.id as string) };
+        break;
 
       case "addCvVersion":
-        return Response.json({
+        result = {
           cvVersions: await db.addCvVersion(a.name as string, a.sizeBytes as number, (a.url as string) ?? null),
-        });
+        };
+        break;
       case "restoreCvVersion":
-        return Response.json({ cvVersions: await db.restoreCvVersion(a.id as string) });
+        result = { cvVersions: await db.restoreCvVersion(a.id as string) };
+        break;
       case "deleteCvVersion":
-        return Response.json({ cvVersions: await db.deleteCvVersion(a.id as string) });
+        result = { cvVersions: await db.deleteCvVersion(a.id as string) };
+        break;
 
       default:
         return Response.json({ error: `unknown action: ${action}` }, { status: 400 });
     }
+    revalidateTag("content", "max"); // stale-while-revalidate; Route Handlers can't use updateTag
+    return Response.json(result);
   } catch (e) {
     console.error("[api/mutate]", action, e);
     return Response.json({ error: (e as Error).message, stack: (e as Error).stack }, { status: 500 });
