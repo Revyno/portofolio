@@ -30,6 +30,8 @@ export function ProjectDrawer({
     coverUrl: base?.coverUrl ?? null,
     liveUrl: base?.liveUrl ?? "",
     repoUrl: base?.repoUrl ?? "",
+    problemTitle: base?.problemTitle ?? "",
+    problemBody: base?.problemBody ?? "",
     media: base?.media ?? [],
   });
   const GALLERY_MAX = 5;
@@ -121,6 +123,17 @@ export function ProjectDrawer({
               value={form.repoUrl}
               onChange={(e) => upd("repoUrl", e.target.value)}
               placeholder="https://github.com/user/repo"
+            />
+          </Field>
+          <Field label="Problem — heading">
+            <Input value={form.problemTitle} onChange={(e) => upd("problemTitle", e.target.value)} placeholder="Updates meant a deploy." />
+          </Field>
+          <Field label="Problem — body">
+            <Textarea
+              rows={4}
+              value={form.problemBody}
+              onChange={(e) => upd("problemBody", e.target.value)}
+              placeholder="Case-study problem text. Leave blank to use the default copy. Separate paragraphs with a blank line."
             />
           </Field>
           <Field label="Cover image">

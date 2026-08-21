@@ -48,10 +48,11 @@ export function Nav() {
           <li>
             <Button
               href="/contact"
-              className={`rounded-full px-[18px] py-[9px] transition-all ${
+              pill={false}
+              className={`px-[18px] py-[9px] transition-all ${
                 isActive(pathname, "/contact")
-                  ? "rounded-full border-accent bg-white text-[#0b0b0b]"
-                  : "rounded-md border-white/40 bg-accent text-[#4CE0FF] hover:border-white hover:bg-[#4CE0FF]"
+                  ? "bg-white text-[#0b0b0b]"
+                  : "bg-accent text-[#0b0b0b] hover:bg-white"
               }`}
             >
               Contact

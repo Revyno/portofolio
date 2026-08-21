@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, MetaStrip, Button } from "@/components/site/primitives";
+import LiquidMorphButton from "@/components/framer/LiquidMorphButton";
 import { useProfile, useCvVersions } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { Toaster } from "@/components/cms/Toaster";
@@ -12,6 +13,7 @@ export default function ContactPage() {
   const profile = useProfile();
   const liveCv = useCvVersions().find((v) => v.isLive);
   const [sent, setSent] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,7 +55,7 @@ export default function ContactPage() {
         <Section>
           <Reveal>
           <div className="grid gap-12 md:grid-cols-12 md:gap-6">
-            <form onSubmit={submit} className="space-y-4 md:col-span-7">
+            <form ref={formRef} onSubmit={submit} className="space-y-4 md:col-span-7">
               <div>
                 <label className="meta-label mb-2 block">Name</label>
                 <input required className={field} placeholder="Your name" />
@@ -66,9 +68,17 @@ export default function ContactPage() {
                 <label className="meta-label mb-2 block">Message</label>
                 <textarea required rows={5} className={field} placeholder="What are you building?" />
               </div>
-              <Button type="submit" className="w-full justify-center md:w-auto md:justify-start">
-                {sent ? "Sent ✓" : "Send message →"}
-              </Button>
+              <LiquidMorphButton
+                label={sent ? "Sent ✓" : "Send message"}
+                onTap={() => formRef.current?.requestSubmit()}
+                backgroundColor="#0b0b0b"
+                textColor="#ffffff"
+                blobColor="#ffffff"
+                hoverTextColor="#0b0b0b"
+                border={{ borderWidth: 1, borderStyle: "solid", borderColor: "rgba(255,255,255,0.16)" }}
+                radius="999px"
+                padding="18px 44px"
+              />
             </form>
 
             <div className="md:col-span-5">
@@ -87,7 +97,7 @@ export default function ContactPage() {
                 ))}
               </ul>
               {profile.cvVisible && liveCv?.url && (
-                <Button href={liveCv.url} variant="ghost" className="mt-8">
+                <Button href={liveCv.url} variant="ghost" pill={false} className="mt-8">
                   Download CV ↓
                 </Button>
               )}

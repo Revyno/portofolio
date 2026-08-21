@@ -85,6 +85,15 @@ export default function CaseStudyPage() {
 
   const next = list[(idx + 1) % list.length];
 
+  // Problem section: CMS-editable per project; fall back to the default copy when blank.
+  const problemTitle = project.problemTitle?.trim() || "Updates meant a deploy.";
+  const problemBody = project.problemBody?.trim()
+    ? project.problemBody.trim().split(/\n\s*\n/)
+    : [
+        "Every content change was a developer task: edit a file, commit, wait for CI, deploy. The result was stale content — new work never landed, and the CV on the site drifted from the one sent to recruiters.",
+        "The fix was a content layer the owner drives from a browser, with the visual system held rigid so nothing can break the layout.",
+      ];
+
   return (
     <PageChrome>
       <Shell>
@@ -162,19 +171,15 @@ export default function CaseStudyPage() {
             <div className="md:col-span-5">
               <Eyebrow>Problem</Eyebrow>
               <h2 className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
-                Updates meant a deploy.
+                {problemTitle}
               </h2>
             </div>
             <div className="space-y-4 md:col-span-7">
-              <p className="text-[15px] text-[var(--t-body)]">
-                Every content change was a developer task: edit a file, commit, wait for CI, deploy.
-                The result was stale content — new work never landed, and the CV on the site drifted
-                from the one sent to recruiters.
-              </p>
-              <p className="text-[15px] text-[var(--t-body)]">
-                The fix was a content layer the owner drives from a browser, with the visual system
-                held rigid so nothing can break the layout.
-              </p>
+              {problemBody.map((para, i) => (
+                <p key={i} className="text-[15px] text-[var(--t-body)]">
+                  {para}
+                </p>
+              ))}
             </div>
           </div>
           </Reveal>

@@ -17,9 +17,14 @@ create table if not exists projects (
   cover_url   text,
   live_url    text,
   repo_url    text,
+  problem_title text not null default '',
+  problem_body  text not null default '',
   updated_at  timestamptz not null default now()
 );
 alter table projects add column if not exists duration text not null default '';
+-- case-study "Problem" section, editable from the CMS (falls back to default copy when blank)
+alter table projects add column if not exists problem_title text not null default '';
+alter table projects add column if not exists problem_body  text not null default '';
 
 create table if not exists project_media (
   id          uuid primary key default gen_random_uuid(),

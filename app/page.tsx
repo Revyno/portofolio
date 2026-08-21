@@ -27,7 +27,7 @@ export default function HomePage() {
                 as="h1"
                 className="text-[clamp(2.75rem,11vw,150px)] font-bold leading-[0.9] tracking-[-0.05em] text-white md:leading-[0.86] md:tracking-[-0.055em]"
               >
-                Welcome To My Portfolio
+                Revellio Christopel Oktufovian Lumbaa
               </SplitReveal>
             </div>
             <div className="flex flex-col gap-6 md:col-span-3">
@@ -40,7 +40,7 @@ export default function HomePage() {
               </div>
               <p className="text-[14px] text-[var(--t-body)] md:text-[15px]">{profile.bio}</p>
               {profile.cvVisible && liveCv?.url && (
-                <Button href={liveCv.url} className="rounded-full  w-full justify-center md:w-auto md:justify-start">
+                <Button href={liveCv.url} pill={false} className="w-full justify-center md:w-auto md:justify-start">
                   Download CV ↓
                 </Button>
               )}

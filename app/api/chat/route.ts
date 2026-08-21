@@ -5,7 +5,7 @@ import type { Message } from "@/components/ai-assistant/types";
 // OpenRouter slug ("vendor/model").
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.AI_MODEL?.includes("/") ? process.env.AI_MODEL : "openai/gpt-4o-mini";
+const MODEL = process.env.AI_MODEL?.includes("/") ? process.env.AI_MODEL : "Fish_Audio/Fish_Audio: S2.1 Pro Free";
 
 const SYSTEM_PROMPT =
   "Kamu adalah asisten AI berkarakter 3D di sebuah website portfolio. Jawab singkat, ramah, dan dalam Bahasa Indonesia kecuali diminta bahasa lain.";

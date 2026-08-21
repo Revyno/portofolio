@@ -47,6 +47,8 @@ function toProject(r: any, media: MediaItem[]): Project {
     coverUrl: r.cover_url ?? null,
     liveUrl: r.live_url ?? null,
     repoUrl: r.repo_url ?? null,
+    problemTitle: r.problem_title ?? "",
+    problemBody: r.problem_body ?? "",
     media,
     updatedAt: new Date(r.updated_at).toISOString(),
   };
@@ -165,11 +167,12 @@ export async function createProject(input: Partial<Project>): Promise<Project[]>
   const slug = await uniqueSlug(slugify(name));
   const next = await sql`select coalesce(max(sort_index)+1, 0) as n from projects`;
   const rows = await sql`insert into projects
-    (sort_index,slug,name,tag,description,stack,metric,duration,year,published,cover_url,live_url,repo_url)
+    (sort_index,slug,name,tag,description,stack,metric,duration,year,published,cover_url,live_url,repo_url,problem_title,problem_body)
     values (${(next as any)[0].n},${slug},${name},${input.tag ?? "Web App"},
             ${input.description ?? ""},${input.stack ?? ""},${input.metric ?? ""},${input.duration ?? ""},
             ${input.year ?? String(new Date().getFullYear())},${input.published ?? false},
-            ${input.coverUrl ?? null},${input.liveUrl ?? null},${input.repoUrl ?? null})
+            ${input.coverUrl ?? null},${input.liveUrl ?? null},${input.repoUrl ?? null},
+            ${input.problemTitle ?? ""},${input.problemBody ?? ""})
     returning id`;
   await syncProjectMedia((rows as any)[0].id, input.media);
   await reindexProjects();
@@ -185,6 +188,7 @@ export async function updateProject(id: string, input: Partial<Project>): Promis
     metric=${input.metric ?? ""}, duration=${input.duration ?? ""}, year=${input.year ?? ""},
     published=${input.published ?? false}, cover_url=${input.coverUrl ?? null},
     live_url=${input.liveUrl ?? null}, repo_url=${input.repoUrl ?? null},
+    problem_title=${input.problemTitle ?? ""}, problem_body=${input.problemBody ?? ""},
     updated_at=now()
     where id=${id}`;
   await syncProjectMedia(id, input.media);

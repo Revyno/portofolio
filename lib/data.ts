@@ -29,6 +29,8 @@ export type Project = {
   coverUrl: string | null;
   liveUrl: string | null;
   repoUrl: string | null;
+  problemTitle: string; // case-study "Problem" heading; "" → default copy
+  problemBody: string; // paragraphs separated by blank lines; "" → default copy
   media: { id: string; url: string; caption: string }[];
   updatedAt: string;
 };
@@ -168,6 +170,8 @@ function proj(
     coverUrl: cover,
     liveUrl: null,
     repoUrl: null,
+    problemTitle: "",
+    problemBody: "",
     media: [],
     updatedAt: "2026-07-20T10:00:00.000Z",
   };

@@ -11,6 +11,7 @@
  */
 
 import { useSyncExternalStore } from "react";
+import { toast } from "./toast";
 import {
   seed,
   slugify,
@@ -68,12 +69,16 @@ async function mutate(action: string, args: Record<string, unknown> = {}) {
       const slice = (await res.json()) as Partial<Store>;
       patch(slice);
     } else {
-      // server rejected the mutation: roll back optimistic state
+      // server rejected the mutation: surface why, then roll back to truth
+      const detail = await res.json().catch(() => ({}));
+      const why = res.status === 403 ? "not signed in as admin" : (detail as { error?: string }).error;
+      toast(`Save failed (${res.status})${why ? `: ${why}` : ""}`);
       hydrated = false;
       hydrate();
     }
-  } catch {
-    // network failed: re-pull authoritative state
+  } catch (e) {
+    // network failed: tell the user, then re-pull authoritative state
+    toast(`Save failed: ${(e as Error).message}`);
     hydrated = false;
     hydrate();
   }
@@ -148,6 +153,8 @@ export function saveProject(input: Partial<Project> & { id?: string }): Project 
     coverUrl: input.coverUrl ?? null,
     liveUrl: input.liveUrl ?? null,
     repoUrl: input.repoUrl ?? null,
+    problemTitle: input.problemTitle ?? "",
+    problemBody: input.problemBody ?? "",
     media: input.media ?? [],
     updatedAt: new Date().toISOString(),
   };

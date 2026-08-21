@@ -40,6 +40,7 @@ export function Button({
   className = "",
   onClick,
   type,
+  pill = true,
 }: {
   href?: string;
   children: ReactNode;
@@ -47,9 +48,11 @@ export function Button({
   className?: string;
   onClick?: () => void;
   type?: "button" | "submit";
+  /** false → rounded-md corners instead of the full-round pill. */
+  pill?: boolean;
 }) {
   const base =
-    "pill mono inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] px-[26px] py-[15px] transition-colors";
+    `${pill ? "pill" : "rounded-md"} mono inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] px-[26px] py-[15px] transition-colors`;
   const styles =
     variant === "primary"
       ? "bg-accent text-[#0b0b0b] hover:bg-white"

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Nav, MobileTabBar } from "./Nav";
 import { Shell } from "./primitives";
@@ -37,6 +39,9 @@ export function Footer() {
           </a>
           <a href="https://gitlab.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
             Gitlab ↗
+          </a>
+          <a href="https://wa.me/6281248608150" target="_blank" rel="noreferrer" className="hover:text-white">
+            Whatsapp ↗
           </a>
         </div>
       </Shell>
