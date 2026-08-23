@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { PageChrome } from "@/components/site/Chrome";
-import { Shell, Section, Eyebrow, MetaStrip, MetricTile, Button } from "@/components/site/primitives";
+import { Shell, Section, Eyebrow, MetaStrip, MetricTile } from "@/components/site/primitives";
+import SpecularButtonLink from "@/components/ui/SpecularButtonLink";
 import { Code } from "@/components/site/Terminal";
 import { Diagram } from "@/components/site/Diagram";
 import { ProjectRow } from "@/components/site/ProjectRow";
@@ -74,9 +75,9 @@ export default function CaseStudyPage() {
             <p className="mt-4 text-[15px] text-[var(--t-body)]">
               This case study is unpublished or does not exist.
             </p>
-            <Button href="/projects" variant="ghost" className="mt-8">
+            <SpecularButtonLink href="/projects" className="mt-8">
               ← All projects
-            </Button>
+            </SpecularButtonLink>
           </Section>
         </Shell>
       </PageChrome>

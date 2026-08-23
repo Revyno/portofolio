@@ -64,6 +64,11 @@
   border-radius: 9999px !important;
 }
 
+/* React Bits buttons opt back into a corner radius (beats the * reset and,
+   being defined later, wins over .pill when both are present). */
+.rb-round { border-radius: 14px !important; }
+.rb-round-lg { border-radius: 18px !important; }
+
 html {
   background: var(--canvas);
   color-scheme: dark;
@@ -144,6 +149,21 @@ input, textarea, select {
   color: var(--accent);
   animation: cur 1.1s steps(1) infinite;
   margin-left: 1px;
+}
+
+/* StarBorder (React Bits) — glints sweeping the top/bottom rim of buttons */
+@keyframes star-movement-bottom {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(-100%, 0%); opacity: 0; }
+}
+@keyframes star-movement-top {
+  0% { transform: translate(0%, 0%); opacity: 1; }
+  100% { transform: translate(100%, 0%); opacity: 0; }
+}
+.animate-star-movement-bottom { animation: star-movement-bottom linear infinite alternate; }
+.animate-star-movement-top { animation: star-movement-top linear infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-star-movement-bottom, .animate-star-movement-top { animation: none; }
 }
 
 /* faint hero grid rule */

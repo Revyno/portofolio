@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { playClick } from "@/lib/sound";
+import StarBorder from "@/components/ui/StarBorder";
 
 /* Public-site building blocks. All 1px hairlines, no radius, no shadow. */
 
@@ -58,37 +59,43 @@ export function Button({
       ? "bg-accent text-[#0b0b0b] hover:bg-white"
       : "border border-[var(--line-box)] text-white hover:bg-[var(--accent-hover)]";
   const cls = `${base} ${styles} ${className}`;
+  // Glint must contrast the fill: accent fill → white glint; dark ghost → accent glint.
+  const glint = variant === "primary" ? "#ffffff" : "var(--accent)";
+
   function handleClick() {
     playClick();
     onClick?.();
   }
+
+  const common = { className: cls, color: glint, onClick: handleClick } as const;
+
   if (href) {
     // data:/blob: hrefs can't be top-level-navigated in Chromium (silently blocked);
     // `download` forces a save instead of a navigation, which works for all href types.
     const isFile = href.startsWith("data:") || href.startsWith("blob:");
     if (isFile)
       return (
-        <a href={href} onClick={handleClick} className={cls} download>
+        <StarBorder as="a" href={href} download {...common}>
           {children}
-        </a>
+        </StarBorder>
       );
     const external = !href.startsWith("/") && !href.startsWith("#");
     if (external)
       return (
-        <a href={href} onClick={handleClick} className={cls} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">
+        <StarBorder as="a" href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" {...common}>
           {children}
-        </a>
+        </StarBorder>
       );
     return (
-      <Link href={href} onClick={handleClick} className={cls}>
+      <StarBorder as={Link} href={href} {...common}>
         {children}
-      </Link>
+      </StarBorder>
     );
   }
   return (
-    <button type={type ?? "button"} onClick={handleClick} className={cls}>
+    <StarBorder as="button" type={type ?? "button"} {...common}>
       {children}
-    </button>
+    </StarBorder>
   );
 }
 

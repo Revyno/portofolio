@@ -16,6 +16,9 @@ export default function JourneyPage() {
   const steps = useJourney()
     .filter((j) => j.published)
     .sort((a, b) => (a.date < b.date ? 1 : -1));
+  // Highlight the "Present" (ongoing) milestone, not just the newest by date.
+  const presentIdx = steps.findIndex((s) => s.ongoing);
+  const activeIdx = presentIdx === -1 ? 0 : presentIdx;
 
   return (
     <PageChrome>
@@ -48,8 +51,8 @@ export default function JourneyPage() {
                     <div className="relative flex justify-center pt-1">
                       <span
                         className={`mt-[6px] h-[10px] w-[10px] border md:h-[14px] md:w-[14px] ${
-                          i === 0
-                            ? "border-accent bg-accent"
+                          i === activeIdx
+                            ? "border-accent bg-accent shadow-[0_0_0_4px_rgba(76,224,255,0.18)]"
                             : "border-[var(--line-diagram)] bg-s0"
                         }`}
                       />

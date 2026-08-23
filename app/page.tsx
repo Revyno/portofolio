@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
-import { Shell, Section, Eyebrow, Button, MetaStrip } from "@/components/site/primitives";
+import { Shell, Section, Eyebrow, MetaStrip } from "@/components/site/primitives";
+import SpecularButtonLink from "@/components/ui/SpecularButtonLink";
 import { ProjectRow } from "@/components/site/ProjectRow";
 import { Terminal } from "@/components/site/Terminal";
 import { SplitReveal, Reveal, Parallax, LineReveal } from "@/components/site/motion";
@@ -40,9 +41,9 @@ export default function HomePage() {
               </div>
               <p className="text-[14px] text-[var(--t-body)] md:text-[15px]">{profile.bio}</p>
               {profile.cvVisible && liveCv?.url && (
-                <Button href={liveCv.url} pill={false} className="w-full justify-center md:w-auto md:justify-start">
+                <SpecularButtonLink href={liveCv.url} className="w-full justify-center md:w-auto md:justify-start">
                   Download CV ↓
-                </Button>
+                </SpecularButtonLink>
               )}
             </div>
           </div>
@@ -70,18 +71,18 @@ export default function HomePage() {
                 Three that carry the argument.
               </LineReveal>
             </div>
-            <Button href="/projects" variant="ghost" className="hidden md:inline-flex">
+            <SpecularButtonLink href="/projects" className="hidden md:inline-flex">
               All projects →
-            </Button>
+            </SpecularButtonLink>
           </div>
           <div className="border-t border-[var(--line)]">
             {selected.map((p) => (
               <ProjectRow key={p.id} project={p} />
             ))}
           </div>
-          <Button href="/projects" variant="ghost" className="mt-8 w-full justify-center md:hidden">
+          <SpecularButtonLink href="/projects" className="mt-8 w-full justify-center md:hidden">
             All projects →
-          </Button>
+          </SpecularButtonLink>
           </Reveal>
         </Section>
       </Shell>

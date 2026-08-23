@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react";
 import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
-import { Shell, Section, Eyebrow, MetaStrip, Button } from "@/components/site/primitives";
+import { Shell, Section, Eyebrow, MetaStrip } from "@/components/site/primitives";
+import SpecularButtonLink from "@/components/ui/SpecularButtonLink";
 import LiquidMorphButton from "@/components/framer/LiquidMorphButton";
 import { useProfile, useCvVersions } from "@/lib/store";
 import { toast } from "@/lib/toast";
@@ -97,9 +98,9 @@ export default function ContactPage() {
                 ))}
               </ul>
               {profile.cvVisible && liveCv?.url && (
-                <Button href={liveCv.url} variant="ghost" pill={false} className="mt-8">
+                <SpecularButtonLink href={liveCv.url} className="mt-8">
                   Download CV ↓
-                </Button>
+                </SpecularButtonLink>
               )}
             </div>
           </div>

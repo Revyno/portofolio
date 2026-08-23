@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Button } from "./primitives";
+import { usePathname, useRouter } from "next/navigation";
+import SpecularButton from "@/components/ui/SpecularButton";
 import { playClick } from "@/lib/sound";
 
 const ITEMS = [
@@ -20,6 +20,8 @@ function isActive(pathname: string, href: string): boolean {
 /** Desktop top nav — 4 mono items, active = 2px accent underline, last = fill button. */
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const contactActive = isActive(pathname, "/contact");
   return (
     <header className="sticky top-0 z-40 hidden border-b border-[var(--line)] bg-s0/90 backdrop-blur md:block">
       <nav className="mx-auto flex h-[70px] max-w-[1440px] items-center justify-between px-[72px]">
@@ -46,17 +48,22 @@ export function Nav() {
             );
           })}
           <li>
-            <Button
-              href="/contact"
-              pill={false}
-              className={`px-[18px] py-[9px] transition-all ${
-                isActive(pathname, "/contact")
-                  ? "bg-white text-[#0b0b0b]"
-                  : "bg-accent text-[#0b0b0b] hover:bg-white"
-              }`}
+            <SpecularButton
+              size="sm"
+              radius={0}
+              autoAnimate={contactActive}
+              onClick={() => {
+                playClick();
+                router.push("/contact");
+              }}
+              aria-current={contactActive ? "page" : undefined}
+              lineColor="#4ce0ff"
+              baseColor="#0b0b0b"
+              textColor={contactActive ? "#4ce0ff" : "#ffffff"}
+              className="mono uppercase tracking-[0.14em] !text-[11px]"
             >
               Contact
-            </Button>
+            </SpecularButton>
           </li>
         </ul>
       </nav>
