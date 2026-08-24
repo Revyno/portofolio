@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { PageChrome, DiagonalBreak } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, MetaStrip } from "@/components/site/primitives";
 import SpecularButtonLink from "@/components/ui/SpecularButtonLink";
-import LiquidMorphButton from "@/components/framer/LiquidMorphButton";
+import SpecularButton from "@/components/ui/SpecularButton";
 import { useProfile, useCvVersions } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { Toaster } from "@/components/cms/Toaster";
@@ -14,7 +14,6 @@ export default function ContactPage() {
   const profile = useProfile();
   const liveCv = useCvVersions().find((v) => v.isLive);
   const [sent, setSent] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -56,7 +55,7 @@ export default function ContactPage() {
         <Section>
           <Reveal>
           <div className="grid gap-12 md:grid-cols-12 md:gap-6">
-            <form ref={formRef} onSubmit={submit} className="space-y-4 md:col-span-7">
+            <form onSubmit={submit} className="space-y-4 md:col-span-7">
               <div>
                 <label className="meta-label mb-2 block">Name</label>
                 <input required className={field} placeholder="Your name" />
@@ -69,17 +68,18 @@ export default function ContactPage() {
                 <label className="meta-label mb-2 block">Message</label>
                 <textarea required rows={5} className={field} placeholder="What are you building?" />
               </div>
-              <LiquidMorphButton
-                label={sent ? "Sent ✓" : "Send message"}
-                onTap={() => formRef.current?.requestSubmit()}
-                backgroundColor="#0b0b0b"
-                textColor="#ffffff"
-                blobColor="#ffffff"
-                hoverTextColor="#0b0b0b"
-                border={{ borderWidth: 1, borderStyle: "solid", borderColor: "rgba(255,255,255,0.16)" }}
-                radius="999px"
-                padding="18px 44px"
-              />
+              <SpecularButton
+                type="submit"
+                size="md"
+                radius={0}
+                autoAnimate={sent}
+                lineColor="#4ce0ff"
+                baseColor="#0b0b0b"
+                textColor={sent ? "#4ce0ff" : "#ffffff"}
+                className="mono uppercase tracking-[0.14em] !text-[12px]"
+              >
+                {sent ? "Sent ✓" : "Send message"}
+              </SpecularButton>
             </form>
 
             <div className="md:col-span-5">

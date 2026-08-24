@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAssistant } from "./assistant-store";
 import { isSTTSupported, listen, type ListenHandle } from "./stt";
+import { unlockTTS } from "./tts";
 
 /** Mic button — only renders when the browser supports speech recognition. */
 export function VoiceInput({ onTranscript }: { onTranscript: (text: string) => void }) {
@@ -28,6 +29,7 @@ export function VoiceInput({ onTranscript }: { onTranscript: (text: string) => v
       handleRef.current?.stop();
       return;
     }
+    unlockTTS(); // gesture-prime speech synth for the spoken reply
     setActive(true);
     setStatus("listening");
     handleRef.current = listen({

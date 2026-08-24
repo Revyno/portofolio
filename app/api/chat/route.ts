@@ -1,14 +1,17 @@
 import type { Message } from "@/components/ai-assistant/types";
 
-// Server-only: key never reaches the browser. `AI_MODEL` in .env is currently
-// a TTS model name (leftover), so it's ignored unless it looks like a real
-// OpenRouter slug ("vendor/model").
+// Server-only: key never reaches the browser.
 export const dynamic = "force-dynamic";
 
-const MODEL = process.env.AI_MODEL?.includes("/") ? process.env.AI_MODEL : "Fish_Audio/Fish_Audio: S2.1 Pro Free";
+// OpenRouter chat slug ("vendor/model"). Override with AI_MODEL in .env.
+const MODEL = process.env.AI_MODEL?.includes("/")
+  ? process.env.AI_MODEL
+  : "nvidia/nemotron-3-nano-30b-a3b:free";
 
+// "detailed thinking off" = NVIDIA Nemotron directive to suppress reasoning
+// output (harmless/ignored on other models).
 const SYSTEM_PROMPT =
-  "Kamu adalah asisten AI berkarakter 3D di sebuah website portfolio. Jawab singkat, ramah, dan dalam Bahasa Indonesia kecuali diminta bahasa lain.";
+  "detailed thinking off\nKamu adalah asisten AI berkarakter 3D di sebuah website portfolio. Jawab singkat, ramah, dan dalam Bahasa Indonesia kecuali diminta bahasa lain.";
 
 export async function POST(req: Request) {
   const key = process.env.OPENROUTER_API_KEY;
@@ -31,12 +34,18 @@ export async function POST(req: Request) {
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
+      // OpenRouter attributes traffic to your app via these (optional).
+      "HTTP-Referer": process.env.OPENROUTER_SITE_URL || "http://localhost:3000",
+      "X-Title": "Revellio Portfolio",
     },
-    body: JSON.stringify({ model: MODEL, messages }),
+    body: JSON.stringify({ model: MODEL, messages, max_tokens: 400 }),
   });
 
   if (!res.ok) {
-    return Response.json({ error: `OpenRouter error ${res.status}` }, { status: 502 });
+    // Surface the upstream reason (bad key, unknown model) instead of a blind 502.
+    const detail = await res.text().catch(() => "");
+    console.error("OpenRouter error", res.status, detail);
+    return Response.json({ error: `OpenRouter ${res.status}: ${detail.slice(0, 200)}` }, { status: 502 });
   }
 
   const data = await res.json();

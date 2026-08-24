@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useAssistant } from "./assistant-store";
 import { VoiceInput } from "./VoiceInput";
+import { unlockTTS } from "./tts";
 
 export function ChatInput() {
   const { send, status } = useAssistant();
@@ -14,6 +15,7 @@ export function ChatInput() {
     e.preventDefault();
     const t = text.trim();
     if (!t || busy) return;
+    unlockTTS(); // prime speech synth inside this gesture so the reply can speak
     send(t);
     setText("");
   };
