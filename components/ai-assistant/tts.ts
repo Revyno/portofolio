@@ -91,11 +91,22 @@ function speakBrowser(text: string, signals: Signals): SpeakHandle {
     voicesReady().then(() => {
       if (cancelled) return;
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "id-ID";
       u.rate = 1;
       u.pitch = 1;
       const v = pickVoice();
-      if (v) u.voice = v;
+      // Take the language from the voice actually chosen. Pinning lang to
+      // "id-ID" while the engine falls back to an English voice — the usual
+      // case, since Windows ships no Indonesian voice by default — asks for a
+      // language that voice cannot produce, and Chrome answers with silence
+      // rather than an error. An English voice reading Indonesian sounds
+      // wrong, but it is audible, and an installed id-ID voice still wins in
+      // pickVoice() and brings the right pronunciation with it.
+      if (v) {
+        u.voice = v;
+        u.lang = v.lang;
+      } else {
+        u.lang = "id-ID";
+      }
       keepAlive.add(u);
       const cleanup = () => {
         keepAlive.delete(u);
@@ -128,6 +139,16 @@ function speakBrowser(text: string, signals: Signals): SpeakHandle {
  * ponytail: mouth uses a talking envelope, not real audio amplitude.
  * Upgrade to a Web Audio AnalyserNode on the <audio> for true sync.
  */
+/**
+ * Fish Audio is a paid API. Once it has refused for a reason that cannot fix
+ * itself mid-session — no credit (402), bad key (401/403) — every later reply
+ * would pay for the same doomed round-trip before falling back, so the visitor
+ * hears a pause before every sentence. Remember the refusal and go straight to
+ * the browser voice. Transient statuses (5xx, network) are not remembered.
+ */
+let fishRefused = false;
+const FISH_TERMINAL = new Set([401, 402, 403, 503]);
+
 export function speak(text: string, signals: Signals): SpeakHandle {
   let cancelled = false;
   let raf = 0;
@@ -160,13 +181,27 @@ export function speak(text: string, signals: Signals): SpeakHandle {
   };
 
   (async () => {
+    if (fishRefused) {
+      fallback();
+      return;
+    }
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
-      if (!res.ok) throw new Error(`tts ${res.status}`);
+      if (!res.ok) {
+        // The route maps every upstream failure to 502, so the real reason is
+        // in the body — read it to tell "out of credit" from "try again".
+        const detail = await res.text().catch(() => "");
+        const upstream = Number(/\b(\d{3})\b/.exec(detail)?.[1]);
+        if (FISH_TERMINAL.has(res.status) || FISH_TERMINAL.has(upstream)) {
+          fishRefused = true;
+          console.warn("[tts] Fish Audio unavailable, using the browser voice:", detail.slice(0, 160));
+        }
+        throw new Error(`tts ${res.status}`);
+      }
       const buf = await res.arrayBuffer();
       if (cancelled) return;
 

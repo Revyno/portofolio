@@ -72,6 +72,10 @@
 html {
   background: var(--canvas);
   color-scheme: dark;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 body {
@@ -131,6 +135,14 @@ input, textarea, select {
   text-transform: uppercase;
   color: var(--accent);
 }
+/* Eyebrow without the accent — for eyebrows sitting on an ArtPlate, where the
+   lone cyan line reads as a stray mark on the painting. Defined after .eyebrow
+   so it wins the tie; both are unlayered, so a Tailwind text-* utility would
+   not. */
+.eyebrow-plain {
+  color: var(--t-primary);
+}
+
 .meta-label {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -196,3 +208,282 @@ input, textarea, select {
   margin-bottom: -0.15em;
 }
 
+
+/* ============================================================
+   ART PLATE + PAGE VEIL  (docs/prd-hero-footer-cinematic.md)
+   Two darkened baroque paintings — one behind the hero, one
+   behind the footer — plus the intro curtain that lifts off
+   the hero on the first load of a tab.
+   ============================================================ */
+
+:root {
+  --plate-ink: #0b0b0b;                    /* = --s0, named for scrim use */
+  --plate-col: rgba(255, 255, 255, 0.035); /* hairline verticals — texture, not drawn lines */
+}
+
+/* --- intro loading screen --- */
+/* Default is "no curtain": the markup is server-rendered but stays hidden
+   until the inline boot script opts this load in. That way a repeat visit, a
+   reduce-motion visitor, or a client-side navigation back to the landing page
+   can never flash black. */
+.veil {
+  position: fixed;
+  inset: 0;
+  /* Above the AI assistant launcher, which sits at 9999 — a floating "Chat AI"
+     button hovering over the loading screen breaks the moment. */
+  z-index: 10000;
+  display: none;
+  background: #000;
+}
+html.veil-on .veil {
+  display: block;
+}
+html.veil-on,
+html.veil-on body {
+  overflow: hidden;
+}
+.veil-panels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.veil-panel {
+  flex: 1 1 0;
+  background: #000;
+  will-change: transform;
+}
+
+/* The wordmark. Drawn by CSS, on purpose: this animation has to start when the
+   HTML is parsed, not when React hydrates — otherwise the "loading screen" is
+   a blank black field for however long the visitor's connection takes. */
+.veil-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: inline-block;
+  transform: translate(-50%, -50%);
+}
+.veil-svg {
+  display: block;
+  width: min(72vw, 620px);
+  height: auto;
+  overflow: visible;
+}
+.veil-word {
+  font-family: var(--font-yesteryear), "Segoe Script", "Brush Script MT", cursive;
+  font-size: 200px;
+  fill: #fff;
+}
+
+/* The masking stroke. pathLength="1" normalises the dash maths, so the whole
+   reveal is one value going 1 → 0 and no JavaScript has to measure the path.
+   Wide enough to clear the tallest flourish and the deepest descender at every
+   point along the way; butt cap so the leading edge stays a clean pen edge
+   instead of a round blob reaching ahead into the next letter. */
+.veil-write {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 420;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+html.veil-on .veil-write {
+  animation: veil-write 1.25s cubic-bezier(0.45, 0.05, 0.35, 1) 0.15s forwards;
+}
+@keyframes veil-write {
+  to { stroke-dashoffset: 0; }
+}
+
+/* The nib: the same path drawn as one short dash travelling its length. Same
+   path and same easing as the mask, so it rides the reveal edge exactly —
+   sync for free, with no second timeline to keep aligned. */
+.veil-pen {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-dasharray: 0.005 1;
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+html.veil-on .veil-pen {
+  animation:
+    veil-pen 1.25s cubic-bezier(0.45, 0.05, 0.35, 1) 0.15s forwards,
+    veil-pen-lift 1.4s linear 0.15s forwards;
+}
+@keyframes veil-pen {
+  to { stroke-dashoffset: -1; }
+}
+@keyframes veil-pen-lift {
+  0% { opacity: 0; }
+  6% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veil { display: none !important; }
+}
+
+/* --- art plate --- */
+/* Focal point is art-directed per breakpoint: the phone crop is much narrower,
+   so it needs to sit on the painting's gesture rather than its centre. */
+.plate-img {
+  object-position: var(--focal-m, 50% 50%);
+}
+@media (min-width: 768px) {
+  .plate-img { object-position: var(--focal, 50% 50%); }
+}
+
+/* Two-layer darkening: a flat wash (opacity, animated by GSAP) times a
+   gradient that keeps the top band (nav) and bottom band (meta strip) pitch
+   dark while letting the middle of the painting breathe. */
+/* Radial layer first (painted on top): the hero composition is centred, so the
+   darkening follows the type instead of leaning to one side — pitch behind the
+   title block, opening up towards the margins where the painting should read.
+   The linear layer under it holds the nav band and the meta strip dark. */
+.plate-scrim {
+  background:
+    radial-gradient(
+      74% 58% at 50% 46%,
+      rgba(11, 11, 11, 0.96) 0%,
+      rgba(11, 11, 11, 0.72) 55%,
+      rgba(11, 11, 11, 0.42) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(11, 11, 11, 0.38) 0%,
+      rgba(11, 11, 11, 0.24) 35%,
+      rgba(11, 11, 11, 0.94) 100%
+    );
+}
+
+/* The closing plate carries body copy and a form across its full width, so it
+   darkens evenly instead of leaning left. */
+.plate-scrim-even {
+  background: linear-gradient(
+    180deg,
+    rgba(11, 11, 11, 0.94) 0%,
+    rgba(11, 11, 11, 0.74) 45%,
+    rgba(11, 11, 11, 0.96) 100%
+  );
+}
+
+.plate-col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--plate-col);
+}
+
+/* Stand-in wash if the artwork file is missing — dark and deliberate, not broken. */
+.plate-fallback {
+  background:
+    radial-gradient(120% 80% at 50% 32%, rgba(255, 255, 255, 0.07), transparent 70%),
+    var(--plate-ink);
+}
+
+/* Vertical edge labels — the reference runs small caps up the margins of the
+   plate. writing-mode keeps them selectable and in the accessibility tree,
+   unlike a rotate() on a normal line. */
+.v-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.28em;
+}
+.v-label-left {
+  transform: rotate(180deg);
+}
+
+/* SplitReveal holds its headline hidden until the words are split and staged.
+   A class, not an inline style: gsap.context().revert() can restore an inline
+   opacity it recorded mid-tween, which left the hero headline part-faded. */
+.sr-hold {
+  opacity: 0;
+}
+/* Wins over .sr-hold and over any inline opacity a context revert restores.
+   Also carries the phone-width fade, which is a transition rather than a tween. */
+.sr-shown {
+  opacity: 1 !important;
+  transition: opacity 0.6s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-hold { opacity: 1; }
+  .sr-shown { transition: none; }
+}
+
+/* --- group mask reveal --- */
+.mr-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.15em;
+  margin-bottom: -0.15em;
+}
+.mr-mask > * {
+  display: inline-block;
+}
+
+/* --- reading progress --- */
+/* Above the nav (z-40) so it reads whether the bar is transparent or solid,
+   below the loading screen (z-10000) so the curtain still covers it. No track
+   behind it: an always-on hairline across the top would cut the hero plate. */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 2px;
+  pointer-events: none;
+}
+.scroll-progress-bar {
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+
+/* --- scroll hint --- */
+/* Mouse outline under the hero CTA. Muted to --t-label so it reads as a hint,
+   not a control. The wheel dot travels down and fades, on a loop. */
+/* Stacked here rather than with Tailwind classes on the element: this rule is
+   unlayered, so its `display` would beat a layered `flex` utility. */
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--t-label);
+}
+.scroll-hint-dot {
+  animation: scroll-hint 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes scroll-hint {
+  0% { transform: translateY(0); opacity: 0; }
+  18% { opacity: 1; }
+  68% { transform: translateY(11px); opacity: 0; }
+  100% { transform: translateY(11px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-dot { animation: none; }
+}
+
+
+
+/* Hero plate starts clipped to a centred band and opens to full bleed. Declared
+   here rather than set from JS: effects run after paint, so a gsap.set would
+   show one frame of the full plate and start the reveal with a visible snap.
+   Reduce-motion never gets the reveal, so it must never get the closed state. */
+.plate-clip-in {
+  clip-path: inset(46% 26% 46% 26%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .plate-clip-in { clip-path: none; }
+}

@@ -101,7 +101,10 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         speakingRef.current = speak(reply, signalsRef.current);
         await speakingRef.current.done;
         dispatch({ type: "SET_STATUS", status: "idle" });
-      } catch {
+      } catch (err) {
+        // The UI only shows a generic error state, which made a dead model slug
+        // indistinguishable from a network drop. Leave the reason somewhere.
+        console.error("[assistant] send failed:", err);
         dispatch({ type: "SET_STATUS", status: "error" });
         setTimeout(() => dispatch({ type: "SET_STATUS", status: "idle" }), 2500);
       }
