@@ -41,11 +41,17 @@ export default function LandingPage() {
       <PageVeil />
       <Toaster />
       <HeroSection profile={profile} liveCv={liveCv} />
-      <section id="work" className="scroll-mt-[84px]">
-        <ProjectsView projects={projects} />
-      </section>
-      <AboutSection profile={profile} />
-      <JourneySection />
+      {/* Everything after the hero rides up over it. The hero is sticky, so
+          these need an opaque background and a higher stacking order or the
+          pinned plate shows straight through them. One wrapper rather than a
+          background on each section. */}
+      <div className="relative z-10 bg-s0">
+        <section id="work" className="scroll-mt-[84px]">
+          <ProjectsView projects={projects} />
+        </section>
+        <AboutSection profile={profile} />
+        <JourneySection />
+      </div>
     </PageChrome>
   );
 }
@@ -55,11 +61,16 @@ function HeroSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion
   return (
     <section
       id="home"
-      // Pulled up under the sticky nav. `sticky` still occupies its 70px in the
-      // flow, so without this the hero — and the plate inside it — begins below
-      // the nav and leaves a bare band across the top. Desktop only: there is
-      // no top nav under md.
-      className="relative flex min-h-[88svh] scroll-mt-[84px] flex-col overflow-hidden md:-mt-[70px] md:min-h-[100svh]"
+      // Sticky, exactly one viewport tall: it holds while the sections after it
+      // climb over the top. A sticky element taller than the viewport can never
+      // be scrolled to its own bottom, so the fixed height is load-bearing, not
+      // cosmetic — the content has to fit one screen.
+      //
+      // -mt-[70px] pulls it under the sticky nav, which still occupies its 70px
+      // in the flow. Without it the plate starts below the nav and leaves a bare
+      // band across the top. Both desktop-only: there is no top nav under md,
+      // and the hero content does not fit a phone screen.
+      className="relative flex min-h-[88svh] scroll-mt-[84px] flex-col overflow-hidden md:sticky md:top-0 md:-mt-[70px] md:h-[100svh] md:min-h-0"
     >
       {/* Baroque plate replaces the DiagonalBreak — the cyan hatch box fought
           the painting. Same call on Contact, which now sits on a plate too. */}

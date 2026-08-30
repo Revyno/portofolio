@@ -14,12 +14,25 @@ const ITEMS = [
 ];
 const SECTION_IDS = [...ITEMS.map((i) => i.id), "contact"];
 
-/** Scroll-spy: the section whose middle band sits under the viewport centre wins. */
+/**
+ * Scroll-spy: the section whose middle band sits under the viewport centre wins.
+ *
+ * "home" is deliberately kept out of the observer. The hero is sticky — it stays
+ * parked at the top of the viewport while the sections after it climb over it,
+ * so it intersects the observer band permanently and would win every comparison
+ * for the whole page. Scroll position is the honest signal for it instead.
+ */
 function useActiveSection(ids: string[]): string {
   const [active, setActive] = useState(ids[0]);
   useEffect(() => {
+    const atHero = () => window.scrollY < window.innerHeight * 0.6;
+
     const obs = new IntersectionObserver(
       (entries) => {
+        if (atHero()) {
+          setActive("home");
+          return;
+        }
         const vis = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
@@ -27,11 +40,22 @@ function useActiveSection(ids: string[]): string {
       },
       { rootMargin: "-45% 0px -50% 0px", threshold: [0, 0.25, 0.5, 1] },
     );
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) obs.observe(el);
-    });
-    return () => obs.disconnect();
+    ids
+      .filter((id) => id !== "home")
+      .forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) obs.observe(el);
+      });
+
+    const onScroll = () => {
+      if (atHero()) setActive("home");
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ids.join(",")]);
   return active;
@@ -87,6 +111,16 @@ export function ScrollProgress() {
 /** Smooth-scroll to a section if present on this page; else route home to it. */
 function goToSection(id: string) {
   playClick();
+  // "home" cannot go through scrollIntoView. The hero is sticky, so while it is
+  // pinned its getBoundingClientRect().top reads 0 from anywhere on the page —
+  // the browser concludes it is already at the start of the viewport and moves
+  // only by the scroll-margin, leaving you stranded mid-page. #home is the top
+  // of the document by definition, so scroll there directly.
+  if (id === "home") {
+    if (document.getElementById("home")) window.scrollTo({ top: 0, behavior: "smooth" });
+    else window.location.assign("/#home");
+    return;
+  }
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   else window.location.assign(`/#${id}`);

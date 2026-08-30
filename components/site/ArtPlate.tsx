@@ -129,7 +129,16 @@ export function ArtPlate({
     // The +16% bleed on .plate-drift is what pays for this: translating down by
     // ~14% of the (taller) layer keeps its top edge above the frame, so no gap
     // opens at the top of the hero.
-    const trigger = { trigger: section, start: "top top", end: "bottom top", scrub: 0.6 } as const;
+    // Distance-based end, not "bottom top": the hero is sticky, so its bottom
+    // edge never travels past the top of the viewport and "bottom top" would
+    // never resolve — the scrub would sit frozen at 0 forever. One viewport of
+    // travel is exactly the range over which the next section climbs over it.
+    const trigger = {
+      trigger: section,
+      start: "top top",
+      end: () => "+=" + window.innerHeight,
+      scrub: 0.6,
+    } as const;
     gsap.fromTo(drift, { yPercent: 0, scale: 1 }, { yPercent: 11, scale: 1.06, ease: "none", scrollTrigger: trigger });
     if (scrimEnd !== undefined) {
       gsap.fromTo(scrimEl, { opacity: scrim }, { opacity: scrimEnd, ease: "none", scrollTrigger: trigger });
