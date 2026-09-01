@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { PageChrome } from "@/components/site/Chrome";
 import { Shell, Section, Eyebrow, MetaStrip, SkillBar } from "@/components/site/primitives";
-import SpecularButtonLink from "@/components/ui/SpecularButtonLink";
-import SpecularButton from "@/components/ui/SpecularButton";
+import { PixelButton } from "@/components/ui/PixelButton";
 import { Terminal } from "@/components/site/Terminal";
 import { TechMarquee } from "@/components/site/TechMarquee";
+import { CertificateTicker } from "@/components/site/CertificateTicker";
 import { ProjectsView } from "./projects/ProjectsView";
 import { SplitReveal, Reveal, LineReveal } from "@/components/site/motion";
 import { ArtPlate } from "@/components/site/ArtPlate";
@@ -23,7 +23,7 @@ import {
   useCertificates,
   publicProjects,
 } from "@/lib/store";
-import type { Certificate, Profile, CvVersion } from "@/lib/data";
+import type { Profile, CvVersion } from "@/lib/data";
 import { principles, skills } from "@/lib/data";
 
 /**
@@ -37,7 +37,7 @@ export default function LandingPage() {
   const liveCv = useCvVersions().find((v) => v.isLive);
 
   return (
-    <PageChrome closing={<ContactSection profile={profile} liveCv={liveCv} />}>
+    <PageChrome closing={<ContactPanel profile={profile} />}>
       <PageVeil />
       <Toaster />
       <HeroSection profile={profile} liveCv={liveCv} />
@@ -51,6 +51,7 @@ export default function LandingPage() {
         </section>
         <AboutSection profile={profile} />
         <JourneySection />
+        <ContactFormSection profile={profile} liveCv={liveCv} />
       </div>
     </PageChrome>
   );
@@ -118,7 +119,7 @@ function HeroSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion
             {profile.bio}
           </p>
           {profile.cvVisible && liveCv?.url && (
-            <SpecularButtonLink href={liveCv.url}>Download CV ↓</SpecularButtonLink>
+            <PixelButton href={liveCv.url} size="sm" variant="dark">Download CV ↓</PixelButton>
           )}
           {/* Scroll hint. Drawn as SVG on purpose: the mouse outline needs
               round corners, and the global `* { border-radius: 0 !important }`
@@ -239,14 +240,22 @@ function AboutSection({ profile }: { profile: Profile }) {
       {/* Certificate */}
       <Shell>
         <Section>
-          <Eyebrow>Certificate</Eyebrow>
-          <div className="border-t border-[var(--line)]">
-            {certificates.map((t) => (
-              <Reveal key={t.id}>
-                <CertificateRow cert={t} />
-              </Reveal>
-            ))}
-          </div>
+          <Reveal>
+            <Eyebrow>Certificate</Eyebrow>
+            <div className="grid gap-10 md:grid-cols-12 md:gap-6">
+              <div className="md:col-span-5">
+                <LineReveal as="h2" className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
+                  Certified &amp; verified
+                </LineReveal>
+                <p className="mt-4 text-[15px] text-[var(--t-body)]">
+                  A live ticker of credentials — it scrolls on its own. Hover to pause, and open any card marked ↗ to view the original.
+                </p>
+              </div>
+              <div className="md:col-span-7">
+                <CertificateTicker items={certificates} />
+              </div>
+            </div>
+          </Reveal>
         </Section>
       </Shell>
 
@@ -280,29 +289,6 @@ function AboutSection({ profile }: { profile: Profile }) {
         </Section>
       </Shell>
     </section>
-  );
-}
-
-/** One certificate row. Same grid; adds cover thumb + wraps in a link when linkUrl is set. */
-function CertificateRow({ cert }: { cert: Certificate }) {
-  const inner = (
-    <div className="grid grid-cols-[60px_1fr] items-center gap-4 border-b border-[var(--line)] py-5 md:grid-cols-[120px_64px_1fr_auto]">
-      <span className="mono text-[13px] text-[var(--t-muted)]">{cert.year}</span>
-      <span className="relative hidden h-[44px] w-[64px] overflow-hidden border border-[var(--line-box)] md:block">
-        {cert.coverUrl ? <Image src={cert.coverUrl} alt={cert.title} fill sizes="64px" className="object-cover" /> : null}
-      </span>
-      <span className="text-[18px] font-bold tracking-[-0.03em] text-white">
-        {cert.title}
-        {cert.linkUrl && <span className="mono ml-2 text-[11px] text-accent">↗</span>}
-      </span>
-      <span className="mono text-[10px] uppercase tracking-[0.14em] text-[var(--t-label)]">{cert.venue}</span>
-    </div>
-  );
-  if (!cert.linkUrl) return inner;
-  return (
-    <a href={cert.linkUrl} target="_blank" rel="noopener noreferrer" className="block transition-colors hover:bg-[var(--accent-hover)]">
-      {inner}
-    </a>
   );
 }
 
@@ -375,7 +361,13 @@ function JourneySection() {
 }
 
 /* ------------------------------------------------------------- Contact -- */
-function ContactSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion }) {
+/**
+ * Form half of Contact. Split out of the closing panel on purpose: the panel is
+ * pinned, and a pinned block taller than the viewport can never be scrolled to
+ * its own bottom. Contact + footer measured 1201px against a 900px viewport —
+ * moving the form here is what buys the panel its 301px.
+ */
+function ContactFormSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion }) {
   const [sent, setSent] = useState(false);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -389,87 +381,91 @@ function ContactSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVers
     "w-full border border-[var(--line-box)] bg-field px-3 py-3 text-[16px] text-white placeholder:text-[var(--t-ghost)] outline-none focus:border-accent md:text-[13px]";
 
   return (
-    <section id="contact" className="scroll-mt-[84px]">
-      <div className="relative overflow-hidden">
-        <Shell>
-          <Section className="pt-10 md:pt-20">
-            <Eyebrow>Contact</Eyebrow>
-            <LineReveal as="h2" className="text-[clamp(2.75rem,13vw,168px)] font-bold leading-[0.84] tracking-[-0.06em] text-white">
-              Let’s talk.
-            </LineReveal>
-
-            <Reveal className="mt-10">
-              <MetaStrip
-                items={[
-                  { label: "Email", value: profile.email, accent: true },
-                  { label: "GitHub", value: `${profile.github}`, accent: true },
-                  {
-                    label: "LinkedIn",
-                    value: profile.linkedin.replace(/^https?:\/\//, ""),
-                    href: profile.linkedin.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`,
-                    accent: true,
-                  },
-                  { label: "Location", value: profile.location },
-                ]}
-              />
-            </Reveal>
-          </Section>
-        </Shell>
-      </div>
-
-      <Shell>
-        <Section>
-          <Reveal>
-            <div className="grid gap-12 md:grid-cols-12 md:gap-6">
-              <form onSubmit={submit} className="space-y-4 md:col-span-7">
-                <div>
-                  <label className="meta-label mb-2 block">Name</label>
-                  <input required className={field} placeholder="Your name" />
-                </div>
-                <div>
-                  <label className="meta-label mb-2 block">Email</label>
-                  <input required type="email" className={field} placeholder="you@company.com" />
-                </div>
-                <div>
-                  <label className="meta-label mb-2 block">Message</label>
-                  <textarea required rows={5} className={field} placeholder="What are you building?" />
-                </div>
-                <SpecularButton
-                  type="submit"
-                  size="md"
-                  radius={0}
-                  autoAnimate={sent}
-                  lineColor="#4ce0ff"
-                  baseColor="#0b0b0b"
-                  textColor={sent ? "#4ce0ff" : "#ffffff"}
-                  className="mono uppercase tracking-[0.14em] !text-[12px]"
-                >
-                  {sent ? "Sent ✓" : "Send message"}
-                </SpecularButton>
-              </form>
-
-              <div className="md:col-span-5">
-                <Eyebrow>What I’m looking for</Eyebrow>
-                <ul className="space-y-4">
-                  {[
-                    "Product-grade web apps where content velocity matters.",
-                    "Teams that value measured results over demo polish.",
-                    "3D / motion work that stays inside a performance budget.",
-                    "Freelance builds with a clear metric to move.",
-                  ].map((t) => (
-                    <li key={t} className="flex gap-3 border-b border-[var(--line)] pb-4 text-[15px] text-[var(--t-body)]">
-                      <span className="mono text-accent">→</span>
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-                {profile.cvVisible && liveCv?.url && (
-                  <SpecularButtonLink href={liveCv.url} className="mt-8">
-                    Download CV ↓
-                  </SpecularButtonLink>
-                )}
+    <Shell>
+      <Section>
+        <Reveal>
+          <Eyebrow>Send a message</Eyebrow>
+          <div className="grid gap-12 md:grid-cols-12 md:gap-6">
+            <form onSubmit={submit} className="space-y-4 md:col-span-7">
+              <div>
+                <label className="meta-label mb-2 block">Name</label>
+                <input required className={field} placeholder="Your name" />
               </div>
+              <div>
+                <label className="meta-label mb-2 block">Email</label>
+                <input required type="email" className={field} placeholder="you@company.com" />
+              </div>
+              <div>
+                <label className="meta-label mb-2 block">Message</label>
+                <textarea required rows={5} className={field} placeholder="What are you building?" />
+              </div>
+              <PixelButton
+                type="submit"
+                size="md"
+                variant="dark"
+                active={sent}
+                className="!text-[12px]"
+              >
+                {sent ? "Sent ✓" : "Send message"}
+              </PixelButton>
+            </form>
+
+            <div className="md:col-span-5">
+              <Eyebrow>What I’m looking for</Eyebrow>
+              <ul className="space-y-4">
+                {[
+                  "Product-grade web apps where content velocity matters.",
+                  "Teams that value measured results over demo polish.",
+                  "3D / motion work that stays inside a performance budget.",
+                  "Freelance builds with a clear metric to move.",
+                ].map((t) => (
+                  <li key={t} className="flex gap-3 border-b border-[var(--line)] pb-4 text-[15px] text-[var(--t-body)]">
+                    <span className="mono text-accent">→</span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
+              {profile.cvVisible && liveCv?.url && (
+                <PixelButton href={liveCv.url} size="sm" variant="dark" className="mt-8">
+                  Download CV ↓
+                </PixelButton>
+              )}
             </div>
+          </div>
+        </Reveal>
+      </Section>
+    </Shell>
+  );
+}
+
+/**
+ * The closing panel: headline + contact meta, sharing one plate with the footer.
+ * Kept under one viewport so PageChrome can pin it and let the page slide off.
+ */
+function ContactPanel({ profile }: { profile: Profile }) {
+  return (
+    <section id="contact" className="scroll-mt-[84px]">
+      <Shell>
+        <Section className="pt-10 md:pt-16" border={false}>
+          <Eyebrow>Contact</Eyebrow>
+          <LineReveal as="h2" className="text-[clamp(2.75rem,11vw,140px)] font-bold leading-[0.84] tracking-[-0.06em] text-white">
+            Let’s talk.
+          </LineReveal>
+
+          <Reveal className="mt-10">
+            <MetaStrip
+              items={[
+                { label: "Email", value: profile.email, accent: true },
+                { label: "GitHub", value: `${profile.github}`, accent: true },
+                {
+                  label: "LinkedIn",
+                  value: profile.linkedin.replace(/^https?:\/\//, ""),
+                  href: profile.linkedin.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`,
+                  accent: true,
+                },
+                { label: "Location", value: profile.location },
+              ]}
+            />
           </Reveal>
         </Section>
       </Shell>

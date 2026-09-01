@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useAssistant } from "./assistant-store";
-import SpecularButton from "@/components/ui/SpecularButton";
+import { PixelButton } from "@/components/ui/PixelButton";
 
 /** Floating launcher shown when the assistant window is closed. */
 export function AssistantButton({ hidden }: { hidden: boolean }) {
   const { openWindow } = useAssistant();
-  // Touch devices never fire pointermove, so the specular shine would stay dark.
-  // Detect no-hover and let the rim light auto-sweep instead.
+  // Touch devices never fire hover, so keep the pixel fill flooded there.
   const [noHover, setNoHover] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(hover: none)");
@@ -19,25 +18,20 @@ export function AssistantButton({ hidden }: { hidden: boolean }) {
   }, []);
 
   return (
-    <SpecularButton
+    <PixelButton
       size="md"
       radius={18}
-      autoAnimate={noHover}
+      variant="dark"
+      active={noHover}
       onClick={openWindow}
       aria-label="Buka asisten AI"
       aria-expanded={!hidden}
       tabIndex={hidden ? -1 : 0}
-      lineColor="#4ce0ff"
-      baseColor="#0b0b0b"
-      tint="#0b0b0b"
-      tintOpacity={0.5}
-      blur={8}
-      textColor="#ffffff"
-      className={`rb-round-lg font-mono text-sm ${
+      className={`text-sm transition-[opacity,transform] ${
         hidden ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
       }`}
     >
       Chat AI
-    </SpecularButton>
+    </PixelButton>
   );
 }

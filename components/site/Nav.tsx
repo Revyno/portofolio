@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import SpecularButton from "@/components/ui/SpecularButton";
+import { PixelButton } from "@/components/ui/PixelButton";
 import { playClick } from "@/lib/sound";
 
 // Single-page: every item is an in-page anchor. Prefixed with "/" so the links
@@ -121,6 +121,13 @@ function goToSection(id: string) {
     else window.location.assign("/#home");
     return;
   }
+  // Same trap at the other end: the closing panel is sticky, parked at the
+  // bottom of the viewport, so scrollIntoView reads it as already in view. It
+  // is the end of the document, so go there.
+  if (id === "contact" && document.getElementById("contact")) {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+    return;
+  }
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   else window.location.assign(`/#${id}`);
@@ -166,19 +173,16 @@ export function Nav() {
             );
           })}
           <li>
-            <SpecularButton
+            <PixelButton
               size="sm"
-              radius={0}
-              autoAnimate={contactActive}
+              variant="dark"
+              active={contactActive}
               onClick={() => goToSection("contact")}
               aria-current={contactActive ? "page" : undefined}
-              lineColor="#4ce0ff"
-              baseColor="#0b0b0b"
-              textColor={contactActive ? "#4ce0ff" : "#ffffff"}
-              className="mono uppercase tracking-[0.14em] !text-[11px]"
+              className="!text-[11px]"
             >
               Contact
-            </SpecularButton>
+            </PixelButton>
           </li>
         </ul>
       </nav>

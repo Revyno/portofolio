@@ -1,7 +1,5 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { playClick } from "@/lib/sound";
-import StarBorder from "@/components/ui/StarBorder";
+import { PixelButton } from "@/components/ui/PixelButton";
 
 /* Public-site building blocks. All 1px hairlines, no radius, no shadow. */
 
@@ -52,50 +50,20 @@ export function Button({
   /** false → rounded-md corners instead of the full-round pill. */
   pill?: boolean;
 }) {
-  const base =
-    `${pill ? "pill" : "rounded-md"} mono inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] px-[26px] py-[15px] transition-colors`;
-  const styles =
-    variant === "primary"
-      ? "bg-accent text-[#0b0b0b] hover:bg-white"
-      : "border border-[var(--line-box)] text-white hover:bg-[var(--accent-hover)]";
-  const cls = `${base} ${styles} ${className}`;
-  // Glint must contrast the fill: accent fill → white glint; dark ghost → accent glint.
-  const glint = variant === "primary" ? "#ffffff" : "var(--accent)";
-
-  function handleClick() {
-    playClick();
-    onClick?.();
-  }
-
-  const common = { className: cls, color: glint, onClick: handleClick } as const;
-
-  if (href) {
-    // data:/blob: hrefs can't be top-level-navigated in Chromium (silently blocked);
-    // `download` forces a save instead of a navigation, which works for all href types.
-    const isFile = href.startsWith("data:") || href.startsWith("blob:");
-    if (isFile)
-      return (
-        <StarBorder as="a" href={href} download {...common}>
-          {children}
-        </StarBorder>
-      );
-    const external = !href.startsWith("/") && !href.startsWith("#");
-    if (external)
-      return (
-        <StarBorder as="a" href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" {...common}>
-          {children}
-        </StarBorder>
-      );
-    return (
-      <StarBorder as={Link} href={href} {...common}>
-        {children}
-      </StarBorder>
-    );
-  }
+  // PixelButton handles nav (SPA / external / data:blob download), the click
+  // sound, and the pixel-fill hover. primary → accent flood, ghost → cyan flood.
   return (
-    <StarBorder as="button" type={type ?? "button"} {...common}>
+    <PixelButton
+      href={href}
+      onClick={onClick}
+      type={type ?? "button"}
+      size="sm"
+      variant={variant === "primary" ? "accent" : "dark"}
+      radius={pill ? 9999 : 6}
+      className={className}
+    >
       {children}
-    </StarBorder>
+    </PixelButton>
   );
 }
 

@@ -81,9 +81,16 @@ export function PageChrome({ children, closing }: { children: ReactNode; closing
     <div className="min-h-dvh pb-[52px] md:pb-0">
       <ScrollProgress />
       <Nav />
-      <main>{children}</main>
+      {/* Opaque and above: this is the layer that slides up off the closing
+          panel. Transparent here and the parked panel shows through it instead
+          of being uncovered. */}
+      <main className="relative z-10 bg-s0">{children}</main>
       {closing ? (
-        <div className="relative overflow-hidden">
+        // One plate across the panel and the footer, parked at the bottom of the
+        // viewport and uncovered as the page slides off it — the closing
+        // counterpart to the pinned hero. Desktop only: on a phone the fixed tab
+        // bar owns the bottom edge, and the panel does not fit the screen.
+        <div className="relative overflow-hidden md:sticky md:bottom-0 md:z-0">
           <ArtPlate
             src={PLATES.footer.src}
             focal={PLATES.footer.focal}
