@@ -1,4 +1,5 @@
 # Revellio — Portfolio
+![alt text](image.png)
 
 Personal portfolio with a self-hosted CMS. Public site is a Swiss / dark-minimal design (one accent, 1px hairlines, no radius/shadow); the owner edits all content from a browser — no deploy to publish.
 
