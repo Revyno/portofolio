@@ -33,6 +33,35 @@ export function veilPending(): boolean {
   );
 }
 
+/**
+ * Re-arm the intro so the *next* landing visit replays the curtain. Just clears
+ * the once-per-tab flag — VEIL_BOOT re-adds `veil-on` on the next load of `/`.
+ * Used after relog (see the sign-in page): log back in, return to the site, and
+ * the intro plays again instead of a cold hero.
+ */
+export function rearmVeil(): void {
+  try { sessionStorage.removeItem(VEIL_KEY); } catch {}
+}
+
+/**
+ * Replay the curtain now. Re-arms, then forces a full document load of `/` so
+ * VEIL_BOOT runs before first paint — the same path the first visit takes, so
+ * reduce-motion still opts out and there is no black flash. A plain SPA nav
+ * would not re-run that inline script, hence the hard load. Reused by the logo.
+ */
+export function replayVeil(): void {
+  if (typeof window === "undefined") return;
+  rearmVeil();
+  if (window.location.pathname === "/") {
+    // Drop any #hash so we start at the hero, then reload() — a fragment-only
+    // URL change (…/#work → …/) would scroll, not reload, and skip VEIL_BOOT.
+    window.history.replaceState(null, "", "/");
+    window.location.reload();
+  } else {
+    window.location.assign("/");
+  }
+}
+
 /** Called by PageVeil once the panels are clear. */
 export function markVeilDone(): void {
   document.documentElement.classList.remove(VEIL_CLASS);

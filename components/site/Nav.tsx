@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { playClick } from "@/lib/sound";
+import { replayVeil } from "./veil";
 
 // Single-page: every item is an in-page anchor. Prefixed with "/" so the links
 // also work from /projects/[slug] (route home, then jump to the section).
@@ -147,8 +148,8 @@ export function Nav() {
     <header className="sticky top-0 z-40 hidden md:block">
       <nav className="mx-auto flex h-[70px] max-w-[1440px] items-center justify-between px-[72px]">
         <a
-          href="/#home"
-          onClick={(e) => { e.preventDefault(); goToSection("home"); }}
+          href="/"
+          onClick={(e) => { e.preventDefault(); playClick(); replayVeil(); }}
           className="mono text-[13px] font-medium tracking-[0.14em] text-white"
         >
           Revellio
