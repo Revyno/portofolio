@@ -51,7 +51,7 @@ export default function LandingPage() {
         </section>
         <AboutSection profile={profile} />
         <JourneySection />
-        <ContactFormSection profile={profile} liveCv={liveCv} />
+        <ContactFormSection />
       </div>
     </PageChrome>
   );
@@ -363,20 +363,102 @@ function JourneySection() {
 }
 
 /* ------------------------------------------------------------- Contact -- */
+/** WhatsApp is where Indonesian project conversations actually happen. Same
+ *  number as the footer link. ponytail: lift both into the CMS profile. */
+const WHATSAPP = "6281248608150";
+
+const PROJECT_TYPES = [
+  "Landing page / company profile",
+  "Web app / dashboard",
+  "E-commerce",
+  "CMS / content platform",
+  "API / system integration",
+  "Something else",
+];
+
+/** Bands, not a single number: a range qualifies the lead without either side
+ *  anchoring first. ponytail: confirm these match the real floor before launch. */
+const BUDGETS = [
+  "Under Rp 5 jt",
+  "Rp 5 - 15 jt",
+  "Rp 15 - 40 jt",
+  "Rp 40 - 100 jt",
+  "Above Rp 100 jt",
+  "Not sure yet - advise me",
+];
+
+const TIMELINES = ["ASAP", "Within 1-3 months", "Later this year", "Still exploring"];
+
+/** The questions that decide whether a stranger sends the first message.
+ *  ponytail: every answer below is a commercial commitment - confirm each. */
+const FAQS: { q: string; a: string }[] = [
+  {
+    q: "How much does a project cost?",
+    a: "It depends on scope, so the honest answer comes after a short call. As a reference: a company profile or landing page usually lands in the Rp 5-15 jt band, a CMS-backed site with an admin panel in Rp 15-40 jt, and anything with custom integrations or a longer engagement above that. You get a fixed quote before any work starts - no hourly surprises.",
+  },
+  {
+    q: "How long does it take?",
+    a: "A landing page is typically 1-2 weeks. A CMS-backed site is 3-5 weeks. A custom web app depends on the feature list, but it is broken into milestones so you see something working every week rather than waiting for one big reveal.",
+  },
+  {
+    q: "How do we start?",
+    a: "Send the brief through the form or WhatsApp. We do a 30-minute call to pin down scope, then you get a written proposal with the price, the milestones, and what is explicitly out of scope. Nothing is charged until you approve that document.",
+  },
+  {
+    q: "How does payment work?",
+    a: "50% down payment to start and 50% on handover for shorter projects. Longer engagements are split per milestone so your exposure stays small. Invoiced in IDR, transfer to a local bank account.",
+  },
+  {
+    q: "How many revisions do I get?",
+    a: "Two rounds per milestone are included, which covers the normal back-and-forth. Beyond that, or if the scope itself changes, we agree the extra cost in writing first - so it never turns into an awkward conversation later.",
+  },
+  {
+    q: "Do I own the code?",
+    a: "Yes. On final payment the repository, the domain, the hosting and every account move to your name. No lock-in, and nothing keeps running on my accounts unless you ask me to maintain it.",
+  },
+  {
+    q: "What happens after launch?",
+    a: "Thirty days of bug fixes are included at no cost. Monthly maintenance after that is optional - handing you something you can run yourself beats selling you a dependency.",
+  },
+  {
+    q: "Can you work with my existing team?",
+    a: "Yes. I take contract work alongside in-house teams and agencies, either owning a specific scope or adding a pair of hands to an existing codebase. Code review and handover documentation come with it.",
+  },
+];
+
 /**
- * Form half of Contact. Split out of the closing panel on purpose: the panel is
+ * Freelance enquiry. Split out of the closing panel on purpose: the panel is
  * pinned, and a pinned block taller than the viewport can never be scrolled to
- * its own bottom. Contact + footer measured 1201px against a 900px viewport —
- * moving the form here is what buys the panel its 301px.
+ * its own bottom. The full Contact section measured 1201px against a 900px
+ * viewport - moving this here is what buys the panel its headroom.
+ *
+ * Submitting opens WhatsApp with the brief pre-filled rather than posting
+ * anywhere. There is no backend, and a lead form that quietly drops what a
+ * stranger just typed is worse than no form at all.
  */
-function ContactFormSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion }) {
+function ContactFormSection() {
   const [sent, setSent] = useState(false);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // ponytail: no backend — just confirm. Wire to /api/contact later.
+    const f = new FormData(e.currentTarget);
+    const get = (k: string) => String(f.get(k) ?? "").trim();
+    const brief = [
+      "Halo Revellio, saya mau diskusi proyek.",
+      "",
+      `Nama: ${get("name")}`,
+      `Email: ${get("email")}`,
+      `Perusahaan: ${get("company") || "-"}`,
+      `Jenis proyek: ${get("type")}`,
+      `Budget: ${get("budget")}`,
+      `Timeline: ${get("timeline")}`,
+      "",
+      "Kebutuhan:",
+      get("message"),
+    ].join("\n");
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(brief)}`, "_blank", "noopener");
     setSent(true);
-    toast("Message queued — I’ll reply by email");
+    toast("Opening WhatsApp with your brief");
   }
 
   const field =
@@ -386,52 +468,111 @@ function ContactFormSection({ profile, liveCv }: { profile: Profile; liveCv?: Cv
     <Shell>
       <Section>
         <Reveal>
-          <Eyebrow>Send a message</Eyebrow>
-          <div className="grid gap-12 md:grid-cols-12 md:gap-6">
-            <form onSubmit={submit} className="space-y-4 md:col-span-7">
-              <div>
-                <label className="meta-label mb-2 block">Name</label>
-                <input required className={field} placeholder="Your name" />
+          <Eyebrow>Freelance</Eyebrow>
+          <LineReveal as="h2" className="text-[clamp(2rem,5vw,56px)] font-bold leading-[0.95] tracking-[-0.04em] text-white">
+            Start a project.
+          </LineReveal>
+          <p className="mt-5 max-w-[560px] text-[15px] leading-[1.6] text-[var(--t-body)]">
+            Tell me the scope and the budget band. You get a fixed quote and a milestone plan
+            before anything is charged.
+          </p>
+
+          {/* Constrained width rather than a 12-column grid: with the right
+              column gone, a form stretched over the full Shell reads as a hole
+              beside itself and the input lines get uncomfortably long. */}
+          <div className="mt-12 max-w-[680px]">
+            <form onSubmit={submit} className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="meta-label mb-2 block">Name</label>
+                  <input name="name" required className={field} placeholder="Your name" />
+                </div>
+                <div>
+                  <label className="meta-label mb-2 block">Email</label>
+                  <input name="email" required type="email" className={field} placeholder="you@company.com" />
+                </div>
               </div>
               <div>
-                <label className="meta-label mb-2 block">Email</label>
-                <input required type="email" className={field} placeholder="you@company.com" />
+                <label className="meta-label mb-2 block">Company (optional)</label>
+                <input name="company" className={field} placeholder="Company or brand" />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="meta-label mb-2 block">Project type</label>
+                  <select name="type" required defaultValue={PROJECT_TYPES[0]} className={field}>
+                    {PROJECT_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="meta-label mb-2 block">Budget</label>
+                  <select name="budget" required defaultValue={BUDGETS[1]} className={field}>
+                    {BUDGETS.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div>
-                <label className="meta-label mb-2 block">Message</label>
-                <textarea required rows={5} className={field} placeholder="What are you building?" />
+                <label className="meta-label mb-2 block">Timeline</label>
+                <select name="timeline" required defaultValue={TIMELINES[1]} className={field}>
+                  {TIMELINES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="meta-label mb-2 block">What are you building?</label>
+                <textarea
+                  name="message"
+                  required
+                  rows={5}
+                  className={field}
+                  placeholder="The problem, who it is for, and anything already built."
+                />
               </div>
               <PixelButton
                 type="submit"
-                size="md"
+                size="sm"
                 variant="dark"
                 active={sent}
-                className="!text-[12px]"
+                // !text-[11px] is not cosmetic: globals.css has an unlayered
+                // `button { font: inherit }`, which beats Tailwind's layered
+                // text-* utility. Without the important modifier this renders at
+                // the 15px body size while the <a> buttons sit at 11px.
+                className="pill mono uppercase tracking-[0.14em] !text-[11px]"
               >
-                {sent ? "Sent ✓" : "Send message"}
+                {sent ? "Sent ✓" : "Send brief via WhatsApp"}
               </PixelButton>
+              <p className="mono text-[10px] uppercase tracking-[0.16em] text-[var(--t-label)]">
+                Opens WhatsApp with your answers filled in
+              </p>
             </form>
+          </div>
 
-            <div className="md:col-span-5">
-              <Eyebrow>What I’m looking for</Eyebrow>
-              <ul className="space-y-4">
-                {[
-                  "Product-grade web apps where content velocity matters.",
-                  "Teams that value measured results over demo polish.",
-                  "3D / motion work that stays inside a performance budget.",
-                  "Freelance builds with a clear metric to move.",
-                ].map((t) => (
-                  <li key={t} className="flex gap-3 border-b border-[var(--line)] pb-4 text-[15px] text-[var(--t-body)]">
-                    <span className="mono text-accent">→</span>
-                    {t}
-                  </li>
-                ))}
-              </ul>
-              {profile.cvVisible && liveCv?.url && (
-                <PixelButton href={liveCv.url} size="sm" variant="dark" className="pill mt-8">
-                  Download CV ↓
-                </PixelButton>
-              )}
+          {/* Native <details>: an accordion with no library, no state and no
+              JavaScript - it still opens if the bundle never loads. */}
+          <div className="mt-20">
+            <Eyebrow>Frequently asked</Eyebrow>
+            <div className="border-t border-[var(--line)]">
+              {FAQS.map((item) => (
+                <details key={item.q} className="faq border-b border-[var(--line)]">
+                  <summary className="flex cursor-pointer items-center justify-between gap-8 py-5 text-[16px] font-medium text-white md:text-[18px]">
+                    {item.q}
+                    <span className="faq-mark mono shrink-0 text-[18px] text-accent">+</span>
+                  </summary>
+                  <p className="max-w-[76ch] pb-6 text-[14px] leading-[1.7] text-[var(--t-body)] md:text-[15px]">
+                    {item.a}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </Reveal>
@@ -439,6 +580,7 @@ function ContactFormSection({ profile, liveCv }: { profile: Profile; liveCv?: Cv
     </Shell>
   );
 }
+
 
 /**
  * The closing panel: headline + contact meta, sharing one plate with the footer.

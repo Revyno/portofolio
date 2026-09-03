@@ -467,3 +467,28 @@ html.veil-on .veil-pen {
 @media (prefers-reduced-motion: reduce) {
   .plate-clip-in { clip-path: none; }
 }
+
+/* --- FAQ accordion --- */
+/* Native <details>, so it opens with JavaScript disabled. The default marker
+   is removed two ways because Safari still uses the WebKit pseudo-element. */
+.faq > summary {
+  list-style: none;
+}
+.faq > summary::-webkit-details-marker {
+  display: none;
+}
+.faq > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.faq-mark {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+.faq[open] .faq-mark {
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-mark { transition: none; }
+}
