@@ -27,7 +27,7 @@ export function AssistantButton({ hidden }: { hidden: boolean }) {
       aria-label="Buka asisten AI"
       aria-expanded={!hidden}
       tabIndex={hidden ? -1 : 0}
-      className={`text-sm transition-[opacity,transform] ${
+      className={`pill text-sm !border-0 transition-[opacity,transform] ${
         hidden ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
       }`}
     >

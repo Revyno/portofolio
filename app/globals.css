@@ -345,9 +345,9 @@ html.veil-on .veil-pen {
 .plate-scrim-even {
   background: linear-gradient(
     180deg,
-    rgba(11, 11, 11, 0.94) 0%,
-    rgba(11, 11, 11, 0.74) 45%,
-    rgba(11, 11, 11, 0.96) 100%
+    rgba(11, 11, 11, 0.95) 0%,
+    rgba(11, 11, 11, 0.88) 50%,
+    rgba(11, 11, 11, 0.97) 100%
   );
 }
 

@@ -180,7 +180,7 @@ export function Nav() {
               active={contactActive}
               onClick={() => goToSection("contact")}
               aria-current={contactActive ? "page" : undefined}
-              className="!text-[11px]"
+              className="pill !text-[11px] !border-0"
             >
               Contact
             </PixelButton>

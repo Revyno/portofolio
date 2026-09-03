@@ -116,10 +116,12 @@ function HeroSection({ profile, liveCv }: { profile: Profile; liveCv?: CvVersion
               full bio here pushes the CV button and meta strip off the fold.
               About still renders the bio in full. */}
           <p className="line-clamp-3 max-w-[560px] text-[14px] leading-[1.6] text-[var(--t-body)] md:text-[15px]">
-            {profile.bio}
+            {/* Hero shows the first full sentence only — the raw clamp cut the
+                bio mid-word ("…Next.j"). About still renders the bio in full. */}
+            {profile.bio.split(/(?<=[.!?])\s+/)[0]}
           </p>
           {profile.cvVisible && liveCv?.url && (
-            <PixelButton href={liveCv.url} size="sm" variant="dark">Download CV ↓</PixelButton>
+            <PixelButton href={liveCv.url} size="sm" variant="dark" className="pill">Download CV ↓</PixelButton>
           )}
           {/* Scroll hint. Drawn as SVG on purpose: the mouse outline needs
               round corners, and the global `* { border-radius: 0 !important }`
@@ -426,7 +428,7 @@ function ContactFormSection({ profile, liveCv }: { profile: Profile; liveCv?: Cv
                 ))}
               </ul>
               {profile.cvVisible && liveCv?.url && (
-                <PixelButton href={liveCv.url} size="sm" variant="dark" className="mt-8">
+                <PixelButton href={liveCv.url} size="sm" variant="dark" className="pill mt-8">
                   Download CV ↓
                 </PixelButton>
               )}

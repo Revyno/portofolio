@@ -44,7 +44,9 @@ const gridV: Variants = {
 };
 const cellV: Variants = {
   rest: { opacity: 0, scale: 0.3 },
-  on: { opacity: 1, scale: 1, transition: { duration: 0.18 } },
+  // scale >1 so neighbouring cells overlap by a sub-pixel — closes the 1fr
+  // grid-track seams that otherwise let the dark base bleed through the flood.
+  on: { opacity: 1, scale: 1.08, transition: { duration: 0.18 } },
 };
 
 export interface PixelButtonProps {
