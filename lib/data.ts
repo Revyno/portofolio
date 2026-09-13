@@ -136,8 +136,8 @@ export const timeline: { year: string; role: string; org: string; note: string }
 
 export const skills = [
   { name: "Problem Solving", level: 0.92, note: "strict, end-to-end logic ." },
-  { name: "Comunication", level: 0.8, note: "Able to convey technical concepts clearly." },
-  { name: "Teamwork", level: 0.7, note: "Collaborative and supportive team player." },
+  { name: "Comunication", level: 0.9, note: "Able to convey technical concepts clearly." },
+  { name: "Teamwork", level: 0.9, note: "Collaborative and supportive team player." },
   // system design
   { name: "System Design", level: 0.9, note: "Able to design scalable and maintainable systems." },
 ];

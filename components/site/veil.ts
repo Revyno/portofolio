@@ -1,10 +1,12 @@
-"use client";
-
 /**
  * Intro-veil coordination. The decision "does a curtain run on this load?" is
- * made by an inline boot script in <PageVeil> *before first paint* (see
+ * made by an inline boot script in the root layout *before first paint* (see
  * VEIL_BOOT) and recorded as `veil-on` on <html>. Everything else reads that
  * class, so React, GSAP and the pre-hydration DOM never disagree.
+ *
+ * Not a "use client" module: VEIL_BOOT is imported by the server root layout,
+ * so the string must stay a real value, not a client reference. The functions
+ * below only touch browser globals when called, which is always client-side.
  */
 
 export const VEIL_EVENT = "veil:done";
@@ -14,16 +16,21 @@ export const VEIL_CLASS = "veil-on";
 /**
  * Runs from the SSR'd HTML, at parse time, before first paint.
  *
+ * It sits in the shared root layout, so it is emitted on every route — hence
+ * the `pathname !== '/'` guard: only the landing page arms the curtain. Without
+ * it, `html.veil-on { overflow:hidden }` would scroll-lock routes like /cms
+ * that have no <PageVeil> to ever call markVeilDone().
+ *
  * The curtain is `display: none` by default in CSS and only shown while
  * <html> carries `veil-on` — so the default is always "no curtain" and this
  * script opts in. That ordering matters: a client-side navigation back to the
- * landing page re-mounts <PageVeil> without re-running this script (React
- * never executes injected <script> tags), and the curtain must stay invisible
- * in that case rather than flashing black.
+ * landing page re-mounts <PageVeil> without re-running this script (it only
+ * runs on a full document load), and the curtain must stay invisible in that
+ * case rather than flashing black.
  *
  * Kept as one line of ES5 on purpose: it ships inline, unminified.
  */
-export const VEIL_BOOT = `(function(){try{if(sessionStorage.getItem('${VEIL_KEY}')==='1')return;if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;sessionStorage.setItem('${VEIL_KEY}','1');document.documentElement.classList.add('${VEIL_CLASS}');}catch(e){}})();`;
+export const VEIL_BOOT = `(function(){try{if(location.pathname!=='/')return;if(sessionStorage.getItem('${VEIL_KEY}')==='1')return;if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;sessionStorage.setItem('${VEIL_KEY}','1');document.documentElement.classList.add('${VEIL_CLASS}');}catch(e){}})();`;
 
 /** True while a curtain is still covering the page. */
 export function veilPending(): boolean {

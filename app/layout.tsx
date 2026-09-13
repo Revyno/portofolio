@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Yesteryear } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { AIAssistantGate } from "@/components/ai-assistant/AIAssistantGate";
+import { VEIL_BOOT } from "@/components/site/veil";
 
 const plex = IBM_Plex_Mono({
   variable: "--font-plex",
@@ -33,6 +34,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${plex.variable} ${yesteryear.variable}`} suppressHydrationWarning>
         <body suppressHydrationWarning>
+          {/* Intro-veil decision, before first paint. Server-rendered <script>:
+              runs at HTML parse, self-guards to `/` (see VEIL_BOOT). Must lead
+              <body> so `veil-on` is set before <PageVeil>'s .veil parses. */}
+          <script dangerouslySetInnerHTML={{ __html: VEIL_BOOT }} />
           {children}
           <AIAssistantGate />
         </body>

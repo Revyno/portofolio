@@ -83,8 +83,14 @@ export function MetaStrip({
         >
           <div className="meta-label mb-2">{it.label}</div>
           {it.href ? (
-            <a href={it.href} target="_blank" rel="noreferrer" className={`break-words text-[13.5px] hover:underline ${it.accent ? "text-accent" : "text-white"}`}>
+            <a
+              href={it.href}
+              target="_blank"
+              rel="noreferrer"
+              className={`group inline-flex w-fit cursor-pointer items-center gap-1 break-words text-[13.5px] underline decoration-transparent underline-offset-4 transition-colors hover:text-white hover:decoration-current ${it.accent ? "text-accent" : "text-white"}`}
+            >
               {it.value}
+              <span aria-hidden className="transition-transform group-hover:translate-x-0.5">↗</span>
             </a>
           ) : (
             <div className={`break-words text-[13.5px] ${it.accent ? "text-accent" : "text-white"}`}>

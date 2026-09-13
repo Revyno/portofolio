@@ -57,9 +57,9 @@ export function Footer({ plate = true }: { plate?: boolean }) {
             <a data-mask href="https://gitlab.com/Revyno" target="_blank" rel="noreferrer" className="hover:text-white">
               Gitlab ↗
             </a>
-            <a data-mask href="https://wa.me/6281248608150" target="_blank" rel="noreferrer" className="hover:text-white">
+            {/* <a data-mask href="https://wa.me/6281248608150" target="_blank" rel="noreferrer" className="hover:text-white">
               Whatsapp ↗
-            </a>
+            </a> */}
           </div>
         </Shell>
       </MaskReveal>

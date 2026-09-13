@@ -23,7 +23,7 @@
 import { useRef, useState } from "react";
 import { useGSAP } from "./useGSAP";
 import { gsap, ScrollTrigger, isMobile } from "./gsap";
-import { VEIL_BOOT, markVeilDone, veilPending } from "./veil";
+import { markVeilDone, veilPending } from "./veil";
 
 /**
  * The pen's motion through "Revellio", in the 680×340 viewBox. It only has to
@@ -160,7 +160,6 @@ export function PageVeil() {
           <path className="veil-pen" d={WRITE_PATH} pathLength={1} aria-hidden />
         </svg>
       </span>
-      <script dangerouslySetInnerHTML={{ __html: VEIL_BOOT }} />
     </div>
   );
 }

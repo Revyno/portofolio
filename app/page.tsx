@@ -37,7 +37,7 @@ export default function LandingPage() {
   const liveCv = useCvVersions().find((v) => v.isLive);
 
   return (
-    <PageChrome closing={<ContactPanel profile={profile} />}>
+    <PageChrome closing={<ContactPanel />}>
       <PageVeil />
       <Toaster />
       <HeroSection profile={profile} liveCv={liveCv} />
@@ -312,11 +312,15 @@ function JourneySection() {
   return (
     <section id="journey" className="scroll-mt-[84px]">
       <Shell>
-        <Section className="pt-10 md:pt-20">
-          <Eyebrow>{steps.length} milestones</Eyebrow>
+        <Section border={false} className="pt-24 md:pt-40">
+          <Eyebrow className="mb-8">{steps.length} milestones</Eyebrow>
           <LineReveal as="h2" className="text-[clamp(3rem,8vw,92px)] font-bold leading-[0.9] tracking-[-0.05em] text-white">
             Journey
           </LineReveal>
+          <p className="pt-10 max-w-[560px] text-[15px] leading-[1.7] text-[var(--t-body)]">
+            The path so far the roles I&apos;ve grown into and the things I&apos;ve
+            shipped along the way, newest first.
+          </p>
         </Section>
       </Shell>
 
@@ -466,15 +470,16 @@ function ContactFormSection() {
 
   return (
     <Shell>
-      <Section>
+      <Section border={false}>
         <Reveal>
-          <Eyebrow>Freelance</Eyebrow>
-          <LineReveal as="h2" className="text-[clamp(2rem,5vw,56px)] font-bold leading-[0.95] tracking-[-0.04em] text-white">
+          <Eyebrow>Contact</Eyebrow>
+          <LineReveal as="h2" className="text-[28px] font-bold tracking-[-0.04em] text-white md:text-[44px]">
             Start a project.
           </LineReveal>
-          <p className="mt-5 max-w-[560px] text-[15px] leading-[1.6] text-[var(--t-body)]">
-            Tell me the scope and the budget band. You get a fixed quote and a milestone plan
-            before anything is charged.
+          <p className="mt-4 max-w-[560px] text-[15px] leading-[1.6] text-[var(--t-body)]">
+            Tell me a bit about what you have in mind and the budget you&apos;re working with.
+            I&apos;ll come back with a clear quote and a step-by-step plan — nothing gets
+            charged until we agree on it.
           </p>
 
           {/* Constrained width rather than a 12-column grid: with the right
@@ -549,11 +554,8 @@ function ContactFormSection() {
                 // the 15px body size while the <a> buttons sit at 11px.
                 className="pill mono uppercase tracking-[0.14em] !text-[11px]"
               >
-                {sent ? "Sent ✓" : "Send brief via WhatsApp"}
+                {sent ? "Sent ✓" : "Send"}
               </PixelButton>
-              <p className="mono text-[10px] uppercase tracking-[0.16em] text-[var(--t-label)]">
-                Opens WhatsApp with your answers filled in
-              </p>
             </form>
           </div>
 
@@ -583,36 +585,11 @@ function ContactFormSection() {
 
 
 /**
- * The closing panel: headline + contact meta, sharing one plate with the footer.
+ * The closing panel: contact meta (headline moved up to the freelance section),
+ * sharing one plate with the footer.
  * Kept under one viewport so PageChrome can pin it and let the page slide off.
  */
-function ContactPanel({ profile }: { profile: Profile }) {
-  return (
-    <section id="contact" className="scroll-mt-[84px]">
-      <Shell>
-        <Section className="pt-10 md:pt-16" border={false}>
-          <Eyebrow>Contact</Eyebrow>
-          <LineReveal as="h2" className="text-[clamp(2.75rem,11vw,140px)] font-bold leading-[0.84] tracking-[-0.06em] text-white">
-            Let’s talk.
-          </LineReveal>
-
-          <Reveal className="mt-10">
-            <MetaStrip
-              items={[
-                { label: "Email", value: profile.email, accent: true },
-                { label: "GitHub", value: `${profile.github}`, accent: true },
-                {
-                  label: "LinkedIn",
-                  value: profile.linkedin.replace(/^https?:\/\//, ""),
-                  href: profile.linkedin.startsWith("http") ? profile.linkedin : `https://linkedin.com/in/${profile.linkedin}`,
-                  accent: true,
-                },
-                { label: "Location", value: profile.location },
-              ]}
-            />
-          </Reveal>
-        </Section>
-      </Shell>
-    </section>
-  );
+function ContactPanel() {
+  // Anchor target for #contact; the contact links now live in the Footer below.
+  return <section id="contact" className="scroll-mt-[84px] pt-10 md:pt-16" />;
 }

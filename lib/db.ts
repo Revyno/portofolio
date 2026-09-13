@@ -53,11 +53,23 @@ function toProject(r: any, media: MediaItem[]): Project {
     updatedAt: new Date(r.updated_at).toISOString(),
   };
 }
+// Neon parses `date` columns into JS Date objects at LOCAL midnight (pg-types
+// `new Date(y,m-1,d)`). String(date) gives "Mon Apr 27 2026" and toISOString()
+// is off-by-one in +TZ, so read Y-M-D off the local components. Strings (already
+// "YYYY-MM-DD") pass through untouched.
+function ymd(v: unknown): string {
+  if (!v) return "";
+  if (v instanceof Date) {
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())}`;
+  }
+  return String(v).slice(0, 10);
+}
 function toJourney(r: any): Journey {
   return {
     id: r.id,
-    date: r.date ? String(r.date).slice(0, 10) : "",
-    endDate: r.end_date ? String(r.end_date).slice(0, 10) : "",
+    date: ymd(r.date),
+    endDate: ymd(r.end_date),
     ongoing: r.ongoing ?? false,
     title: r.title,
     org: r.org ?? "",
