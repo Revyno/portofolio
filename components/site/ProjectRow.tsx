@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Project } from "@/lib/data";
 import { pad } from "@/lib/data";
 import { playClick } from "@/lib/sound";
+import { ProjectDialog } from "@/components/site/ProjectDialog";
 
 /** Selected-work row — grid: number, name+desc, stack, metric+year, arrow. Hover accent 5%. */
 export function ProjectRow({ project }: { project: Project }) {
@@ -35,13 +36,13 @@ export function ProjectRow({ project }: { project: Project }) {
   );
 }
 
-/** Work grid card. Border right+bottom, space-between layout. */
+/** Work grid card. Opens a quick-look dialog (no direct navigation). */
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <Link
-      href={`/projects/${project.slug}`}
-      onClick={playClick}
-      className="group flex min-h-[172px] flex-col justify-between border-b border-l border-[var(--line)] p-5 transition-colors hover:bg-[var(--accent-hover)] md:min-h-[250px]"
+    <ProjectDialog project={project}>
+    <button
+      type="button"
+      className="group flex min-h-[172px] w-full flex-col justify-between border-b border-l border-[var(--line)] p-5 text-left transition-colors hover:bg-[var(--accent-hover)] md:min-h-[250px]"
     >
       <div className="flex items-start justify-between">
         <span className="mono text-[11px] text-[var(--t-muted)]">{pad(project.sortIndex + 1)}</span>
@@ -85,6 +86,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </span>
         </div>
       </div>
-    </Link>
+    </button>
+    </ProjectDialog>
   );
 }

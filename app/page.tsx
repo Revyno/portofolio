@@ -51,7 +51,9 @@ export default function LandingPage() {
         </section>
         <AboutSection profile={profile} />
         <JourneySection />
-        <ContactFormSection />
+        <section id="contact" className="scroll-mt-[84px]">
+          <ContactFormSection />
+        </section>
       </div>
     </PageChrome>
   );
@@ -590,6 +592,7 @@ function ContactFormSection() {
  * Kept under one viewport so PageChrome can pin it and let the page slide off.
  */
 function ContactPanel() {
-  // Anchor target for #contact; the contact links now live in the Footer below.
-  return <section id="contact" className="scroll-mt-[84px] pt-10 md:pt-16" />;
+  // Spacer above the footer plate. #contact now points at the contact form
+  // higher up (the "Start a project." section), so the nav lands on the form.
+  return <section className="pt-10 md:pt-16" />;
 }

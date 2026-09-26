@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { Project } from "@/lib/data";
-import { TAGS } from "@/lib/data";
+import { TAGS, isVideoUrl } from "@/lib/data";
 import { saveProject, deleteProject } from "@/lib/store";
 import { toast } from "@/lib/toast";
 import { Field, Input, Textarea, Select, Toggle, CmsButton, Dropzone } from "./ui";
@@ -155,7 +155,11 @@ export function ProjectDrawer({
             <div className="grid grid-cols-3 gap-2">
               {form.media.map((m, i) => (
                 <div key={m.id} className="relative aspect-square border border-[var(--line-box)]">
-                  <Image src={m.url} alt={m.caption || "gallery"} fill sizes="180px" className="object-cover" />
+                  {isVideoUrl(m.url) ? (
+                    <video src={m.url} muted playsInline className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <Image src={m.url} alt={m.caption || "gallery"} fill sizes="180px" className="object-cover" />
+                  )}
                   <button
                     onClick={() => upd("media", form.media.filter((_, j) => j !== i))}
                     className="mono absolute right-1 top-1 bg-black/70 px-1.5 py-0.5 text-[9px] text-white transition-colors hover:bg-black/90"
@@ -168,8 +172,9 @@ export function ProjectDrawer({
             {form.media.length < GALLERY_MAX && (
               <div className="mt-2">
                 <Dropzone
+                  accept="image/*,video/*"
                   onFile={(url) => upd("media", [...form.media, { id: `tmp-${Date.now()}`, url, caption: "" }])}
-                  hint={`Drop image to add (${GALLERY_MAX - form.media.length} left)`}
+                  hint={`Drop image or video (${GALLERY_MAX - form.media.length} left)`}
                   height={90}
                 />
               </div>

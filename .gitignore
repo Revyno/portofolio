@@ -9,10 +9,14 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-/PROMPT.md
-/AGENTS.md
-/CLAUDE.md
 .env
+
+# agent/docs files
+*.md
+!README.md
+!readme.md
+.claude/
+.mcp.json
 
 # testing
 /coverage

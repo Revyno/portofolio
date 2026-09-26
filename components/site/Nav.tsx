@@ -122,13 +122,6 @@ function goToSection(id: string) {
     else window.location.assign("/#home");
     return;
   }
-  // Same trap at the other end: the closing panel is sticky, parked at the
-  // bottom of the viewport, so scrollIntoView reads it as already in view. It
-  // is the end of the document, so go there.
-  if (id === "contact" && document.getElementById("contact")) {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
-    return;
-  }
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   else window.location.assign(`/#${id}`);

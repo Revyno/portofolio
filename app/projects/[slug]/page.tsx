@@ -13,7 +13,7 @@ import { ProjectRow } from "@/components/site/ProjectRow";
 import { SplitReveal, Reveal, Parallax } from "@/components/site/motion";
 import { useProjects, publicProjects } from "@/lib/store";
 import { playClick } from "@/lib/sound";
-import type { Project } from "@/lib/data";
+import { isVideoUrl, type Project } from "@/lib/data";
 
 /** Simple index-based carousel — gallery is capped at 5 images, no library needed. */
 function Gallery({ media, name }: { media: Project["media"]; name: string }) {
@@ -24,7 +24,11 @@ function Gallery({ media, name }: { media: Project["media"]; name: string }) {
   return (
     <Shell>
       <div className="relative aspect-[16/9] w-full overflow-hidden border border-[var(--line-box)]">
-        <Image src={media[i].url} alt={media[i].caption || name} fill sizes="1440px" className="object-cover" />
+        {isVideoUrl(media[i].url) ? (
+          <video src={media[i].url} controls muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <Image src={media[i].url} alt={media[i].caption || name} fill sizes="1440px" className="object-cover" />
+        )}
         {media.length > 1 && (
           <>
             <button

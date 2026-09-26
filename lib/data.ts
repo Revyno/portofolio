@@ -7,6 +7,9 @@
 
 export const TAGS = [
   "Web App",
+  "Mobile Developer",
+  "Full Stack Developer",
+  "Back End Developer",
   "3D / Motion",
   "UI Kit",
   "Backend",
@@ -104,6 +107,10 @@ export function slugify(s: string): string {
 }
 export function pad(n: number): string {
   return String(n).padStart(2, "0");
+}
+/** True for video media — data:video/* URLs or common video file extensions. */
+export function isVideoUrl(url: string): boolean {
+  return /^data:video\//i.test(url) || /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(url);
 }
 
 // --- static (non-editable) content ----------------------------------------
