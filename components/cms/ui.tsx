@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
+import { toast } from "@/lib/toast";
 
 /* CMS primitives — hairline, no radius. */
 
@@ -105,7 +106,7 @@ export function CmsButton({
   );
 }
 
-/** Dropzone — dashed border, ↓ glyph. Reads file as data URL and calls onFile. */
+/** Dropzone — dashed border, ↓ glyph. Uploads to S3 and calls onFile(publicUrl, file). */
 export function Dropzone({
   onFile,
   accept = "image/*",
@@ -119,35 +120,57 @@ export function Dropzone({
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  function handle(file: File | undefined) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => onFile(String(reader.result), file);
-    reader.readAsDataURL(file);
+  // Presigned S3 upload: ask our server for a short-lived PUT URL, send the file
+  // straight to S3, then hand the public URL to the caller. No base64 — that
+  // bloated Neon and failed on anything large.
+  async function handle(file: File | undefined) {
+    if (!file || busy) return;
+    setBusy(true);
+    try {
+      const ct = file.type || "application/octet-stream";
+      const sign = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: ct, size: file.size }),
+      });
+      if (!sign.ok) {
+        const { error } = (await sign.json().catch(() => ({}))) as { error?: string };
+        throw new Error(error || `presign failed (${sign.status})`);
+      }
+      const { uploadUrl, publicUrl } = (await sign.json()) as { uploadUrl: string; publicUrl: string };
+      const put = await fetch(uploadUrl, { method: "PUT", headers: { "content-type": ct }, body: file });
+      if (!put.ok) throw new Error(`S3 upload failed (${put.status})`);
+      onFile(publicUrl, file);
+    } catch (e) {
+      toast(`Upload failed: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <div
-      onClick={() => ref.current?.click()}
+      onClick={() => !busy && ref.current?.click()}
       onDragOver={(e) => {
         e.preventDefault();
-        setOver(true);
+        if (!busy) setOver(true);
       }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => {
         e.preventDefault();
         setOver(false);
-        handle(e.dataTransfer.files[0]);
+        if (!busy) handle(e.dataTransfer.files[0]);
       }}
-      className={`flex cursor-pointer flex-col items-center justify-center border border-dashed p-11 text-center transition-colors ${
-        over ? "border-accent bg-[var(--accent-hover)]" : "border-[rgba(255,255,255,0.2)]"
-      }`}
+      className={`flex flex-col items-center justify-center border border-dashed p-11 text-center transition-colors ${
+        busy ? "cursor-wait opacity-60" : "cursor-pointer"
+      } ${over ? "border-accent bg-[var(--accent-hover)]" : "border-[rgba(255,255,255,0.2)]"}`}
       style={height ? { minHeight: height } : undefined}
     >
-      <div className="mono text-[24px] text-accent">↓</div>
+      <div className="mono text-[24px] text-accent">{busy ? "…" : "↓"}</div>
       <div className="mono mt-3 text-[10px] uppercase tracking-[0.14em] text-[var(--t-muted)]">
-        {hint}
+        {busy ? "Uploading…" : hint}
       </div>
       <input
         ref={ref}

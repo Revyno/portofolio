@@ -8,19 +8,19 @@ export const dynamic = "force-dynamic";
 // — :free pools 429 a lot. Order = preference.
 const PRIMARY = process.env.AI_MODEL?.includes("/")
   ? process.env.AI_MODEL
-  : "z-ai/glm-5.2:free";
+  : "qwen/qwen3.8-27b:free";
+// Free slugs verified answering 2026-10-01. OpenRouter rotates :free endpoints
+// often — when the loop 502s, re-check live slugs at /api/v1/models (filter
+// id endsWith ":free") since dead ones 404 ("unavailable for free") and get
+// skipped. The old glm-5.2/gemma/deepseek :free slugs are gone/ZDR-blocked.
 const MODELS = [...new Set([
   PRIMARY,
-  "google/gemma-4-26b-a4b-it:free",
-  "google/gemma-4-31b-it:free",
   "qwen/qwen3.8-27b:free",
-  // ZDR-safe anchor: still answers when the rest 429 or are ZDR-blocked. The two
-  // Gemma :free endpoints 404 while the account keeps Zero Data Retention on
-  // (openrouter.ai/settings/privacy) — the loop just skips them.
-  "deepseek/deepseek-v4-flash-0731:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
+  "inclusionai/ling-3.0-flash-sante:free",
 ])];
-// glm-5.2 & qwen3.8 are reasoning models — `reasoning: { enabled: false }`
-// below keeps the chain-of-thought out of the reply (see note there).
+// qwen3.8 is a reasoning model — `reasoning: { enabled: false }` below keeps
+// the chain-of-thought out of the reply (see note there).
 
 const SYSTEM_PROMPT =
   "Kamu adalah asisten AI berkarakter 3D di sebuah website portfolio. Jawab singkat, ramah, dan dalam Bahasa Indonesia kecuali diminta bahasa lain.";
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model,
         messages,
-        max_tokens: 400,
+        // No max_tokens cap — let the model use its full output budget.
         // Reasoning models otherwise spend the budget thinking and print the
         // chain of thought into `content`. Only this API switch suppresses it;
         // a "thinking off" system-prompt line does not, and `exclude: true`
